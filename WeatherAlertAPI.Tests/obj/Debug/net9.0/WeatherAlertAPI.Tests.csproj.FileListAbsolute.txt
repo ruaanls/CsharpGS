@@ -123,3 +123,5 @@ C:\Users\richa\OneDrive\Documentos\RichardyBS\CsharpGS1\WeatherAlertAPI.Tests\ob
 C:\Users\richa\OneDrive\Documentos\RichardyBS\CsharpGS1\WeatherAlertAPI.Tests\obj\Debug\net9.0\WeatherAlertAPI.Tests.pdb
 C:\Users\richa\OneDrive\Documentos\RichardyBS\CsharpGS1\WeatherAlertAPI.Tests\obj\Debug\net9.0\WeatherAlertAPI.Tests.genruntimeconfig.cache
 C:\Users\richa\OneDrive\Documentos\RichardyBS\CsharpGS1\WeatherAlertAPI.Tests\obj\Debug\net9.0\ref\WeatherAlertAPI.Tests.dll
+C:\Users\richa\OneDrive\Documentos\RichardyBS\CsharpGS1\WeatherAlertAPI.Tests\bin\Debug\net9.0\Microsoft.AspNetCore.Mvc.Versioning.dll
+C:\Users\richa\OneDrive\Documentos\RichardyBS\CsharpGS1\WeatherAlertAPI.Tests\obj\Debug\net9.0\WeatherAlertAPI.Tests.sourcelink.json
