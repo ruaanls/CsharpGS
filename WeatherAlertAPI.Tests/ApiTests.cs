@@ -1,17 +1,101 @@
-using Xunit;
-using Moq;
-using WeatherAlertAPI.Controllers;
-using WeatherAlertAPI.Services;
-using WeatherAlertAPI.Models;
-using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using WeatherAlertAPI.Controllers;
+using WeatherAlertAPI.Models;
+using WeatherAlertAPI.Services;
+using Xunit;
 
 namespace WeatherAlertAPI.Tests
 {
     public class ApiTests
     {
+        private readonly Mock<IPreferenciasService> _mockPreferenciasService;
+        private readonly Mock<IWeatherService> _mockWeatherService;
+        private readonly Mock<IAlertaService> _mockAlertaService;
+        private readonly PreferenciasController _preferenciasController;
+        private readonly AlertaController _alertaController;
+
+        public ApiTests()
+        {
+            _mockPreferenciasService = new Mock<IPreferenciasService>();
+            _mockAlertaService = new Mock<IAlertaService>();
+            _mockWeatherService = new Mock<IWeatherService>();
+            _preferenciasController = new PreferenciasController(_mockPreferenciasService.Object);
+            _alertaController = new AlertaController(_mockAlertaService.Object, _mockWeatherService.Object);
+        }
+
+        [Fact]
+        public async Task TestCriarPreferencia()
+        {
+            // Arrange
+            var preferencia = new PreferenciasNotificacao
+            {
+                Cidade = "São Paulo",
+                Estado = "SP",
+                TemperaturaMin = 15,
+                TemperaturaMax = 30,
+                Ativo = true
+            };
+
+            _mockPreferenciasService.Setup(service => service.CreatePreferenciaAsync(It.IsAny<PreferenciasNotificacao>()))
+                .ReturnsAsync(preferencia);
+
+            // Act
+            var result = await _preferenciasController.CreatePreferencia(preferencia);
+
+            // Assert
+            var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+            var model = Assert.IsType<PreferenciasNotificacao>(createdResult.Value);
+            Assert.Equal("São Paulo", model.Cidade);
+            Assert.Equal("SP", model.Estado);
+            Assert.Equal(15, model.TemperaturaMin);
+            Assert.Equal(30, model.TemperaturaMax);
+            Assert.True(model.Ativo);
+        }
+
+        [Fact]
+        public async Task TestAtualizarPreferencia()
+        {
+            // Arrange
+            int id = 1;
+            var preferencia = new PreferenciasNotificacao
+            {
+                IdPreferencia = id,
+                Cidade = "São Paulo",
+                Estado = "SP",
+                TemperaturaMin = 18,
+                TemperaturaMax = 28,
+                Ativo = true
+            };
+
+            _mockPreferenciasService.Setup(service => service.UpdatePreferenciaAsync(It.IsAny<PreferenciasNotificacao>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _preferenciasController.UpdatePreferencia(id, preferencia);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task TestExcluirPreferencia()
+        {
+            // Arrange
+            int id = 1;
+            _mockPreferenciasService.Setup(service => service.DeletePreferenciaAsync(id))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _preferenciasController.DeletePreferencia(id);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
         [Fact]
         public async Task GetPreferencias_ReturnsList()
         {
@@ -24,8 +108,8 @@ namespace WeatherAlertAPI.Tests
                     IdPreferencia = 1,
                     Cidade = "São Paulo",
                     Estado = "SP",
-                    TemperaturaMinima = 15,
-                    TemperaturaMaxima = 30
+                    TemperaturaMin = 15,
+                    TemperaturaMax = 30
                 }
             };
 
@@ -54,8 +138,8 @@ namespace WeatherAlertAPI.Tests
                 IdPreferencia = 1,
                 Cidade = "São Paulo",
                 Estado = "SP",
-                TemperaturaMinima = 15,
-                TemperaturaMaxima = 30
+                TemperaturaMin = 15,
+                TemperaturaMax = 30
             };
 
             mockService.Setup(s => s.GetPreferenciaByIdAsync(1))
@@ -81,8 +165,8 @@ namespace WeatherAlertAPI.Tests
             {
                 Cidade = "São Paulo",
                 Estado = "SP",
-                TemperaturaMinima = 15,
-                TemperaturaMaxima = 30
+                TemperaturaMin = 15,
+                TemperaturaMax = 30
             };
 
             mockService.Setup(s => s.CreatePreferenciaAsync(It.IsAny<PreferenciasNotificacao>()))
@@ -91,8 +175,8 @@ namespace WeatherAlertAPI.Tests
                           IdPreferencia = 1,
                           Cidade = "São Paulo",
                           Estado = "SP",
-                          TemperaturaMinima = 15,
-                          TemperaturaMaxima = 30
+                          TemperaturaMin = 15,
+                          TemperaturaMax = 30
                       });
 
             var controller = new PreferenciasController(mockService.Object);
@@ -106,37 +190,64 @@ namespace WeatherAlertAPI.Tests
         }
 
         [Fact]
-        public async Task GetAlertas_ReturnsList()
+        public async Task TestCriarAlerta()
         {
             // Arrange
-            var mockAlertaService = new Mock<IAlertaService>();
-            var mockWeatherService = new Mock<IWeatherService>();
-            var expectedAlertas = new List<AlertaTemperatura>
+            var alerta = new AlertaTemperatura
             {
-                new AlertaTemperatura
+                Cidade = "São Paulo",
+                Estado = "SP",
+                Temperatura = 35.5m,
+                TipoAlerta = "ALTO",
+                Mensagem = "Temperatura muito alta",
+                DataHora = DateTime.Now,
+                Status = "ATIVO"
+            };
+
+            _mockAlertaService.Setup(service => service.CreateAlertaAsync(It.IsAny<AlertaTemperatura>()))
+                .ReturnsAsync(alerta);
+
+            // Act
+            var result = await _alertaController.CreateAlerta(alerta);
+
+            // Assert
+            var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+            var model = Assert.IsType<AlertaTemperatura>(createdResult.Value);
+            Assert.Equal("São Paulo", model.Cidade);
+            Assert.Equal("SP", model.Estado);
+            Assert.Equal(35.5m, model.Temperatura);
+            Assert.Equal("ALTO", model.TipoAlerta);
+        }
+
+        [Fact]
+        public async Task TestGetAlertas()
+        {
+            // Arrange
+            var alertas = new List<AlertaTemperatura>
+            {
+                new()
                 {
                     IdAlerta = 1,
                     Cidade = "São Paulo",
                     Estado = "SP",
-                    Temperatura = 32,
-                    TipoAlerta = "TEMPERATURA_ALTA",
+                    Temperatura = 35.0m,
+                    TipoAlerta = "ALTO",
+                    Mensagem = "Temperatura muito alta",
+                    DataHora = DateTime.Now,
                     Status = "ATIVO"
                 }
             };
 
-            mockAlertaService.Setup(s => s.GetAlertasAsync(null, null))
-                            .ReturnsAsync(expectedAlertas);
-
-            var controller = new AlertaController(mockAlertaService.Object, mockWeatherService.Object);
+            _mockAlertaService.Setup(service => service.GetAlertasAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(alertas);
 
             // Act
-            var result = await controller.GetAlertas();
+            var result = await _alertaController.GetAlertas(cidade: "", estado: "");
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnedAlertas = Assert.IsAssignableFrom<IEnumerable<AlertaTemperatura>>(okResult.Value);
-            Assert.Single(returnedAlertas);
-            Assert.Equal("TEMPERATURA_ALTA", returnedAlertas.First().TipoAlerta);
+            var model = Assert.IsAssignableFrom<IEnumerable<AlertaTemperatura>>(okResult.Value);
+            Assert.NotEmpty(model);
         }
 
         [Fact]

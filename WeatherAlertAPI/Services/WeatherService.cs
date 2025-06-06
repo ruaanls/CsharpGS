@@ -33,9 +33,16 @@ namespace WeatherAlertAPI.Services
             
             var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            
-            var json = JObject.Parse(await response.Content.ReadAsStringAsync());
-            var temperatura = json["current"]["temp_c"].Value<decimal>();
+              var json = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var current = json["current"];
+            if (current == null)
+                throw new InvalidOperationException("Dados de temperatura não disponíveis");
+
+            var tempToken = current["temp_c"];
+            if (tempToken == null)
+                throw new InvalidOperationException("Temperatura não disponível");
+
+            var temperatura = tempToken.Value<decimal>();
             
             return (temperatura, cidade, estado);
         }

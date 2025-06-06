@@ -64,9 +64,7 @@ namespace WeatherAlertAPI.Services
 
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<AlertaTemperatura>(sql, new { cidade, estado });
-        }
-
-        public async Task<AlertaTemperatura> GetAlertaByIdAsync(int id)
+        }        public async Task<AlertaTemperatura?> GetAlertaByIdAsync(int id)
         {
             const string sql = @"SELECT 
                 ID_ALERTA as IdAlerta,

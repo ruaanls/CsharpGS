@@ -22,21 +22,19 @@ namespace WeatherAlertAPI.Controllers
         {
             _alertaService = alertaService;
             _weatherService = weatherService;
-        }        /// <summary>
-        /// Obtém todos os alertas de temperatura registrados
-        /// </summary>
-        /// <param name="cidade">Filtrar por cidade específica</param>
-        /// <param name="estado">Filtrar por estado específico</param>
-        /// <returns>Lista de alertas de temperatura</returns>
+        }
+
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<AlertaTemperatura>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<AlertaTemperatura>>> GetAlertas(
-            [FromQuery] string cidade = null,
-            [FromQuery] string estado = null)
+            [FromQuery] string? cidade = "",
+            [FromQuery] string? estado = "")
         {
             var alertas = await _alertaService.GetAlertasAsync(cidade, estado);
             return Ok(alertas);
-        }        /// <summary>
+        }
+
+        /// <summary>
         /// Obtém um alerta específico pelo ID
         /// </summary>
         /// <param name="id">ID do alerta</param>
@@ -53,7 +51,25 @@ namespace WeatherAlertAPI.Controllers
                 return NotFound();
 
             return Ok(alerta);
-        }        /// <summary>
+        }
+
+        /// <summary>
+        /// Cria um novo alerta de temperatura
+        /// </summary>
+        /// <param name="alerta">Dados do alerta</param>
+        /// <returns>Alerta criado</returns>
+        /// <response code="201">Retorna o alerta criado</response>
+        /// <response code="400">Dados inválidos</response>
+        [HttpPost]
+        [ProducesResponseType(typeof(AlertaTemperatura), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<AlertaTemperatura>> CreateAlerta([FromBody] AlertaTemperatura alerta)
+        {
+            var result = await _alertaService.CreateAlertaAsync(alerta);
+            return CreatedAtAction(nameof(GetAlerta), new { id = result.IdAlerta }, result);
+        }
+
+        /// <summary>
         /// Atualiza o status de um alerta
         /// </summary>
         /// <param name="id">ID do alerta</param>
@@ -72,7 +88,9 @@ namespace WeatherAlertAPI.Controllers
 
             await _alertaService.UpdateAlertaStatusAsync(id, status);
             return NoContent();
-        }        /// <summary>
+        }
+
+        /// <summary>
         /// Verifica as temperaturas atuais e cria alertas se necessário
         /// </summary>
         /// <returns>OK quando a verificação for concluída</returns>

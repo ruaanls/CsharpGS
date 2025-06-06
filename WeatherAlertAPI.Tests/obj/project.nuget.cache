@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "6DKF6AkUros=",
+  "dgSpecHash": "SFHOihNfMeg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
+  "projectFilePath": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\richa\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\richa\\.nuget\\packages\\coverlet.collector\\6.0.2\\coverlet.collector.6.0.2.nupkg.sha512",

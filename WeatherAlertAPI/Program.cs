@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers(options =>
 {
-    options.ReturnHttpNotAcceptable = true; // Retorna 406 se o formato solicitado não for suportado
+    options.ReturnHttpNotAcceptable = true;
 })
 .AddJsonOptions(options =>
 {
@@ -21,7 +20,7 @@ builder.Services.AddControllers(options =>
 })
 .ConfigureApiBehaviorOptions(options =>
 {
-    options.SuppressModelStateInvalidFilter = false; // Retorna automaticamente 400 para modelos inválidos
+    options.SuppressModelStateInvalidFilter = false;
     options.InvalidModelStateResponseFactory = context =>
     {
         var result = new BadRequestObjectResult(context.ModelState);
@@ -110,9 +109,29 @@ builder.Services.AddScoped<IPreferenciasService, PreferenciasService>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddHttpClient();
 
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 var app = builder.Build();
 
-// Configure Swagger UI
+// Configure pipeline (otimizado para API REST)
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 app.UseSwagger(options =>
 {
     options.RouteTemplate = "api-docs/{documentName}/swagger.json";
@@ -131,7 +150,7 @@ app.UseSwaggerUI(options =>
     options.EnableFilter();
 });
 
-// Configure pipeline (otimizado para API REST)
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

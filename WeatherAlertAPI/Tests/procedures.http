@@ -1,0 +1,54 @@
+### Teste SP_INSERIR_PREFERENCIA
+POST http://localhost:5000/api/preferencias
+Content-Type: application/json
+
+{
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "temperaturaMin": 15,
+    "temperaturaMax": 30,
+    "ativo": true
+}
+
+### Teste SP_ATUALIZAR_PREFERENCIA
+PUT http://localhost:5000/api/preferencias/1
+Content-Type: application/json
+
+{
+    "idPreferencia": 1,
+    "cidade": "Rio de Janeiro",
+    "estado": "RJ",
+    "temperaturaMin": 20,
+    "temperaturaMax": 35,
+    "ativo": true
+}
+
+### Teste SP_INSERIR_ALERTA
+POST http://localhost:5000/api/alertas
+Content-Type: application/json
+
+{
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "temperatura": 35.5,
+    "tipoAlerta": "ALTO",
+    "mensagem": "Temperatura muito alta!",
+    "status": "ATIVO"
+}
+
+### Teste SP_ATUALIZAR_STATUS_ALERTA
+PATCH http://localhost:5000/api/alertas/1/status
+Content-Type: application/json
+
+{
+    "status": "INATIVO"
+}
+
+### Teste Get Preferencias
+GET http://localhost:5000/api/preferencias
+
+### Teste Get Alertas
+GET http://localhost:5000/api/alertas
+
+### Teste Get Temperatura Atual
+GET http://localhost:5000/api/alertas/temperatura?cidade=São Paulo&estado=SP

@@ -1,0 +1,86 @@
+# Testes da API de Alertas de Temperatura
+@baseUrl = http://localhost:5000
+
+### 1. Gerenciamento de Preferências
+
+### 1.1 Criar nova preferência de notificação
+POST {{baseUrl}}/api/preferencias
+Content-Type: application/json
+
+{
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "temperaturaMin": 15,
+    "temperaturaMax": 30,
+    "ativo": true
+}
+
+### 1.2 Obter todas as preferências
+GET {{baseUrl}}/api/preferencias
+
+### 1.3 Obter preferência específica
+GET {{baseUrl}}/api/preferencias/1
+
+### 1.4 Atualizar preferência
+PUT {{baseUrl}}/api/preferencias/1
+Content-Type: application/json
+
+{
+    "idPreferencia": 1,
+    "cidade": "Rio de Janeiro",
+    "estado": "RJ",
+    "temperaturaMin": 20,
+    "temperaturaMax": 35,
+    "ativo": true
+}
+
+### 1.5 Excluir preferência
+DELETE {{baseUrl}}/api/preferencias/1
+
+### 2. Gerenciamento de Alertas
+
+### 2.1 Criar novo alerta
+POST {{baseUrl}}/api/alertas
+Content-Type: application/json
+
+{
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "temperatura": 35.5,
+    "tipoAlerta": "ALTO",
+    "mensagem": "Temperatura muito alta!",
+    "status": "ATIVO"
+}
+
+### 2.2 Obter todos os alertas
+GET {{baseUrl}}/api/alertas
+
+### 2.3 Obter alerta específico
+GET {{baseUrl}}/api/alertas/1
+
+### 2.4 Atualizar status do alerta
+PUT {{baseUrl}}/api/alertas/1/status
+Content-Type: application/json
+
+{
+    "status": "INATIVO"
+}
+
+### 3. Consulta de Temperatura
+
+### 3.1 Obter temperatura atual por cidade
+GET {{baseUrl}}/api/alertas/temperatura?cidade=São Paulo&estado=SP
+
+### 4. Filtros
+
+### 4.1 Filtrar preferências por cidade
+GET {{baseUrl}}/api/preferencias?cidade=São Paulo
+
+### 4.2 Filtrar preferências por estado
+GET {{baseUrl}}/api/preferencias?estado=SP
+
+### 4.3 Filtrar alertas por cidade
+GET {{baseUrl}}/api/alertas?cidade=São Paulo
+
+### 4.4 Filtrar alertas por estado
+GET {{baseUrl}}/api/alertas?estado=SP

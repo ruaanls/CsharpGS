@@ -8,7 +8,7 @@ namespace WeatherAlertAPI.Services
     {
         Task<AlertaTemperatura> CreateAlertaAsync(AlertaTemperatura alerta);
         Task<IEnumerable<AlertaTemperatura>> GetAlertasAsync(string? cidade = null, string? estado = null);
-        Task<AlertaTemperatura> GetAlertaByIdAsync(int id);
+        Task<AlertaTemperatura?> GetAlertaByIdAsync(int id);
         Task UpdateAlertaStatusAsync(int id, string status);
     }
 }

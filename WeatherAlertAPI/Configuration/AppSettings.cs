@@ -2,8 +2,8 @@ namespace WeatherAlertAPI.Configuration
 {
     public class AppSettings
     {
-        public DatabaseSettings Database { get; set; }
-        public WeatherApiSettings WeatherApi { get; set; }
+        public required DatabaseSettings Database { get; set; }
+        public required WeatherApiSettings WeatherApi { get; set; }
     }
 
     public class DatabaseSettings

@@ -8,7 +8,7 @@ namespace WeatherAlertAPI.Services
     {
         Task<PreferenciasNotificacao> CreatePreferenciaAsync(PreferenciasNotificacao preferencia);
         Task<IEnumerable<PreferenciasNotificacao>> GetPreferenciasAsync(string? cidade = null, string? estado = null);
-        Task<PreferenciasNotificacao> GetPreferenciaByIdAsync(int id);
+        Task<PreferenciasNotificacao?> GetPreferenciaByIdAsync(int id);
         Task UpdatePreferenciaAsync(PreferenciasNotificacao preferencia);
         Task DeletePreferenciaAsync(int id);
     }

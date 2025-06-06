@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj": {}
+    "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj": {
+    "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
+        "projectUniqueName": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
         "projectName": "WeatherAlertAPI.Tests",
-        "projectPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
+        "projectPath": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
         "packagesPath": "C:\\Users\\richa\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\obj\\",
+        "outputPath": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\richa\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,8 +26,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj": {
-                "projectPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj"
+              "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj": {
+                "projectPath": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj"
               }
             }
           }
@@ -95,14 +95,14 @@
         }
       }
     },
-    "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj": {
+    "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
+        "projectUniqueName": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
         "projectName": "WeatherAlertAPI",
-        "projectPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
+        "projectPath": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
         "packagesPath": "C:\\Users\\richa\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\obj\\",
+        "outputPath": "c:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\richa\\AppData\\Roaming\\NuGet\\NuGet.Config"
