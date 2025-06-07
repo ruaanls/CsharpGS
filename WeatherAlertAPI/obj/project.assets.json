@@ -1088,24 +1088,32 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\richa\\.nuget\\packages\\": {}
+    "C:\\Softwares\\Nuget": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
+      "projectUniqueName": "C:\\Users\\labsfiap\\Documents\\RichardyBS\\CsharpGS\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
       "projectName": "WeatherAlertAPI",
-      "projectPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
-      "packagesPath": "C:\\Users\\richa\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\obj\\",
+      "projectPath": "C:\\Users\\labsfiap\\Documents\\RichardyBS\\CsharpGS\\WeatherAlertAPI\\WeatherAlertAPI.csproj",
+      "packagesPath": "C:\\Softwares\\Nuget",
+      "outputPath": "C:\\Users\\labsfiap\\Documents\\RichardyBS\\CsharpGS\\WeatherAlertAPI\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\richa\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "c:\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

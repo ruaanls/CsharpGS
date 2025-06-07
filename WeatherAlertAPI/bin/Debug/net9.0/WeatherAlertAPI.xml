@@ -4,14 +4,6 @@
         <name>WeatherAlertAPI</name>
     </assembly>
     <members>
-        <member name="M:WeatherAlertAPI.Controllers.AlertaController.GetAlertas(System.String,System.String)">
-            <summary>
-            Obtém todos os alertas de temperatura registrados
-            </summary>
-            <param name="cidade">Filtrar por cidade específica</param>
-            <param name="estado">Filtrar por estado específico</param>
-            <returns>Lista de alertas de temperatura</returns>
-        </member>
         <member name="M:WeatherAlertAPI.Controllers.AlertaController.GetAlerta(System.Int32)">
             <summary>
             Obtém um alerta específico pelo ID
@@ -46,14 +38,6 @@
             </summary>
             <returns>OK quando a verificação for concluída</returns>
             <response code="200">Verificação realizada com sucesso</response>
-        </member>
-        <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.GetPreferencias(System.String,System.String)">
-            <summary>
-            Lista todas as preferências de notificação cadastradas
-            </summary>
-            <param name="cidade">Filtrar por cidade específica</param>
-            <param name="estado">Filtrar por estado específico</param>
-            <returns>Lista de preferências de notificação</returns>
         </member>
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.GetPreferencia(System.Int32)">
             <summary>

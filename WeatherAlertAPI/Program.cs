@@ -150,6 +150,20 @@ app.UseSwaggerUI(options =>
     options.EnableFilter();
 });
 
+// Middleware para forçar Content-Type application/json em todas as respostas
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        if (!context.Response.Headers.ContainsKey("Content-Type"))
+        {
+            context.Response.Headers.Add("Content-Type", "application/json");
+        }
+        return Task.CompletedTask;
+    });
+    await next();
+});
+
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();

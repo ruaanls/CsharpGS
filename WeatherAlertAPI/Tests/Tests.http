@@ -62,6 +62,18 @@ Content-Type: application/json
 
 "INATIVO"
 
-### Verificar temperaturas e criar alertas
 POST {{baseUrl}}/api/Alerta/check
 Accept: application/json
+
+
+POST http://localhost:5231/api/Alerta
+Content-Type: application/json
+
+{
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "temperaturaLimite": 35,
+  "status": "ATIVO",
+  "tipoAlerta": "ALTA",
+  "mensagem": "Temperatura acima do limite"
+}
