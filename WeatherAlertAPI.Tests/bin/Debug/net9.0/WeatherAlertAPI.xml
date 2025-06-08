@@ -4,6 +4,52 @@
         <name>WeatherAlertAPI</name>
     </assembly>
     <members>
+        <member name="T:WeatherAlertAPI.Controllers.AlertaController">
+            <summary>
+            Sistema de Alertas de Temperatura
+            </summary>
+            <remarks>
+            API para gerenciamento e monitoramento de alertas de temperatura.
+            
+            Funcionalidades principais:
+            * Monitoramento em tempo real de temperaturas
+            * Geração automática de alertas baseados em preferências
+            * Consulta de histórico de alertas
+            * Atualização de status de alertas
+            * Integração com serviço meteorológico externo
+            
+            Tipos de Alertas:
+            * ALTO: Temperatura acima do limite máximo
+            * BAIXO: Temperatura abaixo do limite mínimo
+            * NORMAL: Temperatura dentro dos limites
+            </remarks>
+        </member>
+        <member name="M:WeatherAlertAPI.Controllers.AlertaController.GetAlertas(System.String,System.String)">
+            <summary>
+            Lista todos os alertas de temperatura
+            </summary>
+            <remarks>
+            Retorna todos os alertas de temperatura gerados, com opção de filtrar por cidade e estado.
+            
+            Exemplo de requisição:
+            ```http
+            GET /api/Alerta?cidade=São Paulo&amp;estado=SP
+            ```
+            
+            O resultado inclui:
+            * ID do alerta
+            * Cidade e estado monitorados
+            * Temperatura registrada
+            * Tipo do alerta (ALTO, BAIXO, NORMAL)
+            * Mensagem descritiva
+            * Status atual do alerta
+            * Data e hora da ocorrência
+            </remarks>
+            <param name="cidade">Filtra alertas por cidade específica</param>
+            <param name="estado">Filtra alertas por estado específico</param>
+            <response code="200">Lista de alertas encontrados</response>
+            <response code="204">Nenhum alerta encontrado com os filtros fornecidos</response>
+        </member>
         <member name="M:WeatherAlertAPI.Controllers.AlertaController.GetAlerta(System.Int32)">
             <summary>
             Obtém um alerta específico pelo ID
@@ -29,7 +75,49 @@
             <summary>
             Verifica as temperaturas atuais e cria alertas se necessário
             </summary>
+            <remarks>
+            Este endpoint realiza as seguintes ações:
+            
+            1. Consulta a temperatura atual de todas as cidades monitoradas
+            2. Compara com as preferências de notificação existentes
+            3. Cria alertas automaticamente quando necessário
+            
+            Exemplo de requisição:
+            ```http
+            POST /api/Alerta/check
+            ```
+            
+            Possíveis resultados:
+            - Alertas de temperatura alta
+            - Alertas de temperatura baixa
+            - Nenhum alerta (temperaturas normais)
+            </remarks>
             <response code="200">Verificação realizada com sucesso</response>
+            <response code="500">Erro ao acessar o serviço de previsão do tempo</response>
+        </member>
+        <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.GetPreferencias(System.String,System.String)">
+            <summary>
+            Lista todas as preferências de notificação
+            </summary>
+            <remarks>
+            Retorna a lista de todas as preferências cadastradas, com opção de filtrar por cidade e estado.
+            
+            Exemplo de requisição:
+            ```http
+            GET /api/Preferencias?cidade=São Paulo&amp;estado=SP
+            ```
+            
+            O resultado inclui:
+            * ID da preferência
+            * Cidade e estado monitorados
+            * Limites de temperatura configurados
+            * Status de ativação
+            * Datas de criação e última atualização
+            </remarks>
+            <param name="cidade">Filtra preferências por cidade específica</param>
+            <param name="estado">Filtra preferências por estado específico</param>
+            <response code="200">Lista de preferências encontradas</response>
+            <response code="204">Nenhuma preferência encontrada com os filtros fornecidos</response>
         </member>
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.GetPreferencia(System.Int32)">
             <summary>
@@ -43,11 +131,32 @@
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.CreatePreferencia(WeatherAlertAPI.Models.PreferenciasNotificacao)">
             <summary>
             Cria uma nova preferência de notificação
+            </summary>        /// <summary>
+            Cria uma nova preferência de notificação
             </summary>
-            <param name="preferencia">Dados da preferência</param>
-            <returns>Preferência criada</returns>
-            <response code="201">Retorna a preferência criada</response>
-            <response code="400">Dados inválidos</response>
+            <remarks>
+            Cria uma nova configuração de preferência para monitoramento de temperatura.
+            
+            Exemplo de requisição:
+            ```json
+            {
+                "cidade": "São Paulo",
+                "estado": "SP",
+                "temperaturaMin": 15,
+                "temperaturaMax": 30,
+                "ativo": true
+            }
+            ```
+            
+            Regras de validação:
+            * Cidade e estado são obrigatórios
+            * Pelo menos um limite de temperatura (mínimo ou máximo) deve ser definido
+            * Temperatura mínima deve ser menor que a máxima
+            * Estado deve ser uma UF válida do Brasil
+            </remarks>
+            <param name="preferencia">Dados da nova preferência</param>
+            <response code="201">Preferência criada com sucesso</response>
+            <response code="400">Dados inválidos ou regras de validação não atendidas</response>
         </member>
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.UpdatePreferencia(System.Int32,WeatherAlertAPI.Models.PreferenciasNotificacao)">
             <summary>
@@ -68,6 +177,179 @@
             <returns>Nenhum conteúdo</returns>
             <response code="204">Preferência excluída com sucesso</response>
             <response code="404">Preferência não encontrada</response>
+        </member>
+        <member name="T:WeatherAlertAPI.Models.AlertaTemperatura">
+            <summary>
+            Represents a temperature alert for a specific city
+            </summary>
+            <example>
+            {
+              "idAlerta": 1,
+              "cidade": "São Paulo",
+              "estado": "SP",
+              "temperatura": 32.5,
+              "tipoAlerta": "TEMPERATURA_ALTA",
+              "mensagem": "Temperatura acima do limite máximo configurado",
+              "dataHora": "2024-01-21T14:30:00",
+              "status": "ATIVO"
+            }
+            </example>
+        </member>
+        <member name="M:WeatherAlertAPI.Models.AlertaTemperatura.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Creates a new temperature alert instance
+            </summary>
+            <param name="cidade">The city name</param>
+            <param name="estado">The state (UF) code</param>
+            <param name="tipoAlerta">The type of alert (e.g., TEMPERATURA_ALTA, TEMPERATURA_BAIXA)</param>
+            <param name="mensagem">The alert message</param>
+        </member>
+        <member name="M:WeatherAlertAPI.Models.AlertaTemperatura.#ctor">
+            <summary>
+            Default constructor for deserialization
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.IdAlerta">
+            <summary>
+            The unique identifier for the alert
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.Cidade">
+            <summary>
+            The city where the temperature was measured
+            </summary>
+            <example>São Paulo</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.Estado">
+            <summary>
+            The state (UF) where the city is located
+            </summary>
+            <example>SP</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.Temperatura">
+            <summary>
+            The measured temperature in Celsius
+            </summary>
+            <example>32.5</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.TipoAlerta">
+            <summary>
+            The type of temperature alert (TEMPERATURA_ALTA or TEMPERATURA_BAIXA)
+            </summary>
+            <example>TEMPERATURA_ALTA</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.Mensagem">
+            <summary>
+            Detailed message describing the alert
+            </summary>
+            <example>Temperatura acima do limite máximo configurado</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.DataHora">
+            <summary>
+            The date and time when the alert was generated
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.AlertaTemperatura.Status">
+            <summary>
+            The current status of the alert (ATIVO or INATIVO)
+            </summary>
+            <example>ATIVO</example>
+        </member>
+        <member name="T:WeatherAlertAPI.Models.ErrorResponse">
+            <summary>
+            Represents an API error response with hypermedia links
+            </summary>
+        </member>
+        <member name="T:WeatherAlertAPI.Models.HypermediaResponse`1">
+            <summary>
+            Base class for hypermedia responses with HATEOAS links
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.HypermediaResponse`1.Data">
+            <summary>
+            The main data of the response
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.HypermediaResponse`1.Links">
+            <summary>
+            Collection of hypermedia links for resource navigation
+            </summary>
+        </member>
+        <member name="T:WeatherAlertAPI.Models.Link">
+            <summary>
+            Represents a hypermedia link
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.Link.Href">
+            <summary>
+            The URL of the link
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.Link.Method">
+            <summary>
+            The HTTP method to use with this link
+            </summary>
+        </member>
+        <member name="T:WeatherAlertAPI.Models.PreferenciasNotificacao">
+            <summary>
+            Represents user preferences for weather alerts notifications
+            </summary>
+            <example>
+            {
+              "idPreferencia": 1,
+              "cidade": "São Paulo",
+              "estado": "SP",
+              "temperaturaMin": 15.5,
+              "temperaturaMax": 30.0,
+              "ativo": true,
+              "dataCriacao": "2024-01-20T10:00:00",
+              "dataAtualizacao": "2024-01-21T15:30:00"
+            }
+            </example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.IdPreferencia">
+            <summary>
+            The unique identifier for the notification preference
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.Cidade">
+            <summary>
+            The city for which weather alerts are requested
+            </summary>
+            <example>São Paulo</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.Estado">
+            <summary>
+            The state (UF) where the city is located
+            </summary>
+            <example>SP</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.TemperaturaMin">
+            <summary>
+            The minimum temperature threshold for alerts (in Celsius)
+            </summary>
+            <example>15.5</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.TemperaturaMax">
+            <summary>
+            The maximum temperature threshold for alerts (in Celsius)
+            </summary>
+            <example>30.0</example>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.Ativo">
+            <summary>
+            Indicates whether this notification preference is active
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.DataCriacao">
+            <summary>
+            The date and time when this preference was created
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.DataAtualizacao">
+            <summary>
+            The date and time when this preference was last updated
+            </summary>
         </member>
     </members>
 </doc>

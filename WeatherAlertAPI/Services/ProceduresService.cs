@@ -5,12 +5,11 @@ using Dapper;
 using Microsoft.Extensions.Logging;
 
 namespace WeatherAlertAPI.Services
-{    public class ProceduresService : IProceduresService
-    {
-        private readonly DatabaseConnection _db;
+{    public class ProceduresService : IProceduresService    {
+        private readonly IDatabaseConnection _db;
         private readonly ILogger<ProceduresService> _logger;
 
-        public ProceduresService(DatabaseConnection db, ILogger<ProceduresService> logger)
+        public ProceduresService(IDatabaseConnection db, ILogger<ProceduresService> logger)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

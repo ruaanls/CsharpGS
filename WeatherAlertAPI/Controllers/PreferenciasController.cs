@@ -12,7 +12,17 @@ namespace WeatherAlertAPI.Controllers
     [Route("api/[controller]")]
     [Produces("application/json")]
     [ApiExplorerSettings(GroupName = "v1")]
-    [SwaggerTag("Endpoints para gerenciamento de preferências de notificação")]
+    [SwaggerTag(@"Sistema de Preferências de Notificação: Gerenciamento de preferências para alertas de temperatura.
+    Recursos disponíveis:
+    - Cadastro de novas preferências por cidade/estado
+    - Consulta de preferências existentes com filtros
+    - Atualização de limites de temperatura
+    - Ativação/desativação de notificações
+    - Exclusão de preferências
+    Cada preferência permite definir:
+    - Cidade e estado para monitoramento
+    - Limites mínimo e máximo de temperatura
+    - Status de ativação das notificações")]
     public class PreferenciasController : ControllerBase
     {
         private readonly IPreferenciasService _preferenciasService;
@@ -20,16 +30,53 @@ namespace WeatherAlertAPI.Controllers
         public PreferenciasController(IPreferenciasService preferenciasService)
         {
             _preferenciasService = preferenciasService;
-        }
-
+        }        /// <summary>
+        /// Lista todas as preferências de notificação
+        /// </summary>
+        /// <remarks>
+        /// Retorna a lista de todas as preferências cadastradas, com opção de filtrar por cidade e estado.
+        /// 
+        /// Exemplo de requisição:
+        /// ```http
+        /// GET /api/Preferencias?cidade=São Paulo&amp;estado=SP
+        /// ```
+        /// 
+        /// O resultado inclui:
+        /// * ID da preferência
+        /// * Cidade e estado monitorados
+        /// * Limites de temperatura configurados
+        /// * Status de ativação
+        /// * Datas de criação e última atualização
+        /// </remarks>
+        /// <param name="cidade">Filtra preferências por cidade específica</param>
+        /// <param name="estado">Filtra preferências por estado específico</param>
+        /// <response code="200">Lista de preferências encontradas</response>
+        /// <response code="204">Nenhuma preferência encontrada com os filtros fornecidos</response>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<PreferenciasNotificacao>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<PreferenciasNotificacao>>> GetPreferencias(
+        [ProducesResponseType(StatusCodes.Status204NoContent)]        public async Task<ActionResult<HypermediaResponse<IEnumerable<PreferenciasNotificacao>>>> GetPreferencias(
             [FromQuery] string? cidade = "",
             [FromQuery] string? estado = "")
         {
             var preferencias = await _preferenciasService.GetPreferenciasAsync(cidade, estado);
-            return Ok(preferencias);
+            
+            var response = new HypermediaResponse<IEnumerable<PreferenciasNotificacao>>
+            {
+                Data = preferencias,
+                Links = new Dictionary<string, Link>
+                {
+                    { "self", new Link($"/api/Preferencias?cidade={cidade}&estado={estado}") },
+                    { "create", new Link("/api/Preferencias", "POST") },
+                    { "alerts", new Link($"/api/Alerta?cidade={cidade}&estado={estado}") }
+                }
+            };
+
+            foreach (var pref in preferencias)
+            {
+                response.Links[$"preferencia_{pref.IdPreferencia}"] = new Link($"/api/Preferencias/{pref.IdPreferencia}");
+            }
+
+            return Ok(response);
         }
 
         /// <summary>
@@ -41,30 +88,91 @@ namespace WeatherAlertAPI.Controllers
         /// <response code="404">Preferência não encontrada</response>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(PreferenciasNotificacao), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<PreferenciasNotificacao>> GetPreferencia(int id)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]        public async Task<ActionResult<HypermediaResponse<PreferenciasNotificacao>>> GetPreferencia(int id)
         {
             var preferencia = await _preferenciasService.GetPreferenciaByIdAsync(id);
             if (preferencia == null)
-                return NotFound();
+            {
+                var error = new ErrorResponse("PREFERENCE_NOT_FOUND", "Preferência não encontrada");
+                error.AddLink("documentation", "/docs/errors/PREFERENCE_NOT_FOUND");
+                error.AddLink("all_preferences", "/api/Preferencias");
+                return NotFound(error);
+            }
 
-            return Ok(preferencia);
+            var response = new HypermediaResponse<PreferenciasNotificacao>
+            {
+                Data = preferencia,
+                Links = new Dictionary<string, Link>
+                {
+                    { "self", new Link($"/api/Preferencias/{id}") },
+                    { "all", new Link("/api/Preferencias") },
+                    { "update", new Link($"/api/Preferencias/{id}", "PUT") },
+                    { "delete", new Link($"/api/Preferencias/{id}", "DELETE") },
+                    { "alerts", new Link($"/api/Alerta?cidade={preferencia.Cidade}&estado={preferencia.Estado}") }
+                }
+            };
+
+            return Ok(response);
         }
 
         /// <summary>
         /// Cria uma nova preferência de notificação
+        /// </summary>        /// <summary>
+        /// Cria uma nova preferência de notificação
         /// </summary>
-        /// <param name="preferencia">Dados da preferência</param>
-        /// <returns>Preferência criada</returns>
-        /// <response code="201">Retorna a preferência criada</response>
-        /// <response code="400">Dados inválidos</response>
+        /// <remarks>
+        /// Cria uma nova configuração de preferência para monitoramento de temperatura.
+        /// 
+        /// Exemplo de requisição:
+        /// ```json
+        /// {
+        ///     "cidade": "São Paulo",
+        ///     "estado": "SP",
+        ///     "temperaturaMin": 15,
+        ///     "temperaturaMax": 30,
+        ///     "ativo": true
+        /// }
+        /// ```
+        /// 
+        /// Regras de validação:
+        /// * Cidade e estado são obrigatórios
+        /// * Pelo menos um limite de temperatura (mínimo ou máximo) deve ser definido
+        /// * Temperatura mínima deve ser menor que a máxima
+        /// * Estado deve ser uma UF válida do Brasil
+        /// </remarks>
+        /// <param name="preferencia">Dados da nova preferência</param>
+        /// <response code="201">Preferência criada com sucesso</response>
+        /// <response code="400">Dados inválidos ou regras de validação não atendidas</response>
         [HttpPost]
         [ProducesResponseType(typeof(PreferenciasNotificacao), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PreferenciasNotificacao>> CreatePreferencia([FromBody] PreferenciasNotificacao preferencia)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]        public async Task<ActionResult<HypermediaResponse<PreferenciasNotificacao>>> CreatePreferencia([FromBody] PreferenciasNotificacao preferencia)
         {
-            var result = await _preferenciasService.CreatePreferenciaAsync(preferencia);
-            return CreatedAtAction(nameof(GetPreferencia), new { id = result.IdPreferencia }, result);
+            try 
+            {
+                var result = await _preferenciasService.CreatePreferenciaAsync(preferencia);
+                
+                var response = new HypermediaResponse<PreferenciasNotificacao>
+                {
+                    Data = result,
+                    Links = new Dictionary<string, Link>
+                    {
+                        { "self", new Link($"/api/Preferencias/{result.IdPreferencia}") },
+                        { "update", new Link($"/api/Preferencias/{result.IdPreferencia}", "PUT") },
+                        { "delete", new Link($"/api/Preferencias/{result.IdPreferencia}", "DELETE") },
+                        { "all", new Link("/api/Preferencias") },
+                        { "alerts", new Link($"/api/Alerta?cidade={result.Cidade}&estado={result.Estado}") }
+                    }
+                };
+
+                return CreatedAtAction(nameof(GetPreferencia), new { id = result.IdPreferencia }, response);
+            }
+            catch (Exception ex)
+            {
+                var error = new ErrorResponse("CREATION_ERROR", ex.Message);
+                error.AddLink("documentation", "/docs/errors/CREATION_ERROR");
+                error.AddLink("support", "https://weatheralert.com/support");
+                return BadRequest(error);
+            }
         }
 
         /// <summary>

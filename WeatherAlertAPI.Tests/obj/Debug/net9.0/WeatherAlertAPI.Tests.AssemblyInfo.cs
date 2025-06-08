@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WeatherAlertAPI.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+580dff294fdc083304600c609988e1251173318b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fbc997dbca6ec8fd99175bee9e8973b30e88e487")]
 [assembly: System.Reflection.AssemblyProductAttribute("WeatherAlertAPI.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WeatherAlertAPI.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

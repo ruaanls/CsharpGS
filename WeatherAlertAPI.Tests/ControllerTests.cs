@@ -44,16 +44,23 @@ namespace WeatherAlertAPI.Tests
                 .ReturnsAsync(preferencia);
 
             // Act
-            var result = await _preferenciasController.CreatePreferencia(preferencia);
-
-            // Assert
+            var result = await _preferenciasController.CreatePreferencia(preferencia);            // Assert
             var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-            var model = Assert.IsType<PreferenciasNotificacao>(createdResult.Value);
-            Assert.Equal("São Paulo", model.Cidade);
-            Assert.Equal("SP", model.Estado);
-            Assert.Equal(15, model.TemperaturaMin);
-            Assert.Equal(30, model.TemperaturaMax);
-            Assert.True(model.Ativo);
+            var response = Assert.IsType<HypermediaResponse<PreferenciasNotificacao>>(createdResult.Value);
+            
+            // Verifica os dados
+            Assert.Equal("São Paulo", response.Data.Cidade);
+            Assert.Equal("SP", response.Data.Estado);
+            Assert.Equal(15, response.Data.TemperaturaMin);
+            Assert.Equal(30, response.Data.TemperaturaMax);
+            Assert.True(response.Data.Ativo);
+            
+            // Verifica os links HATEOAS
+            Assert.Contains(response.Links, link => link.Key == "self");
+            Assert.Contains(response.Links, link => link.Key == "update");
+            Assert.Contains(response.Links, link => link.Key == "delete");
+            Assert.Contains(response.Links, link => link.Key == "all");
+            Assert.Contains(response.Links, link => link.Key == "alerts");
         }
 
         [Fact]
@@ -100,14 +107,19 @@ namespace WeatherAlertAPI.Tests
                 .ReturnsAsync(alerta);
 
             // Act
-            var result = await _alertaController.CreateAlerta(alerta);
-
-            // Assert
+            var result = await _alertaController.CreateAlerta(alerta);            // Assert
             var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-            var model = Assert.IsType<AlertaTemperatura>(createdResult.Value);
-            Assert.Equal(alerta.Cidade, model.Cidade);
-            Assert.Equal(alerta.Estado, model.Estado);
-            Assert.Equal(alerta.Temperatura, model.Temperatura);
+            var response = Assert.IsType<HypermediaResponse<AlertaTemperatura>>(createdResult.Value);
+            
+            // Verifica os dados
+            Assert.Equal(alerta.Cidade, response.Data.Cidade);
+            Assert.Equal(alerta.Estado, response.Data.Estado);
+            Assert.Equal(alerta.Temperatura, response.Data.Temperatura);
+            
+            // Verifica os links HATEOAS
+            Assert.Contains(response.Links, link => link.Key == "self");
+            Assert.Contains(response.Links, link => link.Key == "update_status");
+            Assert.Contains(response.Links, link => link.Key == "all");
         }
 
         [Fact]
@@ -132,12 +144,20 @@ namespace WeatherAlertAPI.Tests
                 .ReturnsAsync(alertas);
 
             // Act
-            var result = await _alertaController.GetAlertas(cidade: "", estado: "");
-
-            // Assert
+            var result = await _alertaController.GetAlertas(cidade: "", estado: "");            // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var model = Assert.IsAssignableFrom<IEnumerable<AlertaTemperatura>>(okResult.Value);
-            Assert.NotEmpty(model);
+            var response = Assert.IsType<HypermediaResponse<IEnumerable<AlertaTemperatura>>>(okResult.Value);
+            
+            // Verifica os dados
+            Assert.NotEmpty(response.Data);
+            var alerta = response.Data.First();
+            Assert.Equal("São Paulo", alerta.Cidade);
+            Assert.Equal("SP", alerta.Estado);
+            
+            // Verifica os links HATEOAS
+            Assert.Contains(response.Links, link => link.Key == "self");
+            Assert.Contains(response.Links, link => link.Key == "check");
+            Assert.Contains(response.Links, link => link.Key == "preferences");
         }
 
         [Fact]
