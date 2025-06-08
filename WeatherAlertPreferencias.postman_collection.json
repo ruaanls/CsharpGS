@@ -1,0 +1,176 @@
+{
+    "info": {
+        "name": "Weather Alert - Preferências",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Criar Preferência",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", function () {",
+                            "    pm.response.to.have.status(201);",
+                            "});",
+                            "",
+                            "pm.test(\"Response contains created preference\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData).to.have.property('idPreferencia');",
+                            "    pm.expect(jsonData.cidade).to.eql('São Paulo');",
+                            "    pm.expect(jsonData.estado).to.eql('SP');",
+                            "    pm.collectionVariables.set('preferencia_id', jsonData.idPreferencia);",
+                            "});"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {                    "raw": "http://localhost:5231/api/Preferencias",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "5231",
+                    "path": ["api", "Preferencias"]
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\",\n    \"temperaturaMin\": 15,\n    \"temperaturaMax\": 30,\n    \"ativo\": true\n}"
+                }
+            }
+        },
+        {
+            "name": "Buscar Preferência por ID",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response contains preference data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.idPreferencia).to.eql(parseInt(pm.collectionVariables.get('preferencia_id')));",
+                            "    pm.expect(jsonData.cidade).to.eql('São Paulo');",
+                            "    pm.expect(jsonData.estado).to.eql('SP');",
+                            "});"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:5000/api/Preferencias/{{preferencia_id}}",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "5000",
+                    "path": ["api", "Preferencias", "{{preferencia_id}}"]
+                }
+            }
+        },
+        {
+            "name": "Atualizar Preferência",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 204\", function () {",
+                            "    pm.response.to.have.status(204);",
+                            "});"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:5000/api/Preferencias/{{preferencia_id}}",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "5000",
+                    "path": ["api", "Preferencias", "{{preferencia_id}}"]
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"idPreferencia\": {{preferencia_id}},\n    \"cidade\": \"Rio de Janeiro\",\n    \"estado\": \"RJ\",\n    \"temperaturaMin\": 20,\n    \"temperaturaMax\": 35,\n    \"ativo\": true\n}"
+                }
+            }
+        },
+        {
+            "name": "Excluir Preferência",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 204\", function () {",
+                            "    pm.response.to.have.status(204);",
+                            "});"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:5000/api/Preferencias/{{preferencia_id}}",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "5000",
+                    "path": ["api", "Preferencias", "{{preferencia_id}}"]
+                }
+            }
+        },
+        {
+            "name": "Verificar Exclusão",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 404\", function () {",
+                            "    pm.response.to.have.status(404);",
+                            "});"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:5000/api/Preferencias/{{preferencia_id}}",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "5000",
+                    "path": ["api", "Preferencias", "{{preferencia_id}}"]
+                }
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "preferencia_id",
+            "value": ""
+        }
+    ]
+}

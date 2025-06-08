@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using WeatherAlertAPI.Configuration;
@@ -8,22 +9,22 @@ using WeatherAlertAPI.Configuration;
 namespace WeatherAlertAPI.Services
 {
     public class WeatherService : IWeatherService
-    {
-        private readonly HttpClient _httpClient;
+    {        private readonly HttpClient _httpClient;
         private readonly WeatherApiSettings _settings;
         private readonly IAlertaService _alertaService;
         private readonly IPreferenciasService _preferenciasService;
-
-        public WeatherService(
-            HttpClient httpClient,
+        private readonly ILogger<WeatherService> _logger;        public WeatherService(
+            IHttpClientFactory httpClientFactory,
             IOptions<WeatherApiSettings> settings,
             IAlertaService alertaService,
-            IPreferenciasService preferenciasService)
+            IPreferenciasService preferenciasService,
+            ILogger<WeatherService> logger)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient();
             _settings = settings.Value;
             _alertaService = alertaService;
             _preferenciasService = preferenciasService;
+            _logger = logger;
         }
 
         public async Task<(decimal temperatura, string cidade, string estado)> GetCurrentTemperatureAsync(string cidade, string estado)

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Data;
@@ -8,42 +9,36 @@ using Dapper;
 namespace WeatherAlertAPI.Tests
 {
     public static class TestSetup
-    {
-        public static Mock<DatabaseConnection> CreateMockDatabase()
+    {        public static Mock<IDatabaseConnection> CreateMockDatabase()
         {
-            var dbSettingsMock = new Mock<IOptions<DatabaseSettings>>();
-            dbSettingsMock.Setup(x => x.Value)
-                         .Returns(new DatabaseSettings { ConnectionString = "mock_connection_string" });
-
             var dbConnectionMock = new Mock<IDbConnection>();
-            var mock = new Mock<DatabaseConnection>(dbSettingsMock.Object);
+            var mock = new Mock<IDatabaseConnection>();
             
             mock.Setup(x => x.CreateConnection())
                 .Returns(dbConnectionMock.Object);
 
             return mock;
-        }
-
-        public static Mock<IDbConnection> GetMockConnection(Mock<DatabaseConnection> dbMock)
+        }        public static Mock<IDbConnection> GetMockConnection(Mock<IDatabaseConnection> dbMock)
         {
             return Mock.Get(dbMock.Object.CreateConnection());
-        }
-
-        public static DatabaseConnection CreateRealDatabase()
+        }public static DatabaseConnection CreateRealDatabase()
         {
             var settings = Options.Create(new DatabaseSettings 
             { 
                 ConnectionString = "User Id=rm557883;Password=031204;Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle.fiap.com.br)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)))" 
             });
-            return new DatabaseConnection(settings);
-        }        public static void SetupExecuteAsync<T>(Mock<IDbConnection> mock, T expectedParam, int returnValue = 1)
+            var loggerMock = new Mock<Microsoft.Extensions.Logging.ILogger<DatabaseConnection>>();
+            return new DatabaseConnection(settings, loggerMock.Object);
+        }        public static void SetupExecuteAsync<T>(Mock<IDbConnection> mock, T expectedParam, int returnValue)
         {
             mock.Setup(x => x.ExecuteAsync(
-                It.IsAny<string>(), 
-                It.Is<object>(p => JsonEquals(p, expectedParam)), 
-                null as IDbTransaction, 
-                null as int?))
+                It.IsAny<CommandDefinition>()))
                 .ReturnsAsync(returnValue);
+        }
+
+        public static void SetupExecuteAsync<T>(Mock<IDbConnection> mock, T expectedParam)
+        {
+            SetupExecuteAsync(mock, expectedParam, 1);
         }
 
         private static bool JsonEquals<T>(object actual, T expected)

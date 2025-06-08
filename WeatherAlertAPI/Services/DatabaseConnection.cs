@@ -7,7 +7,7 @@ using WeatherAlertAPI.Configuration;
 
 namespace WeatherAlertAPI.Services
 {
-    public class DatabaseConnection
+    public class DatabaseConnection : IDatabaseConnection
     {
         private readonly string _connectionString;
         private readonly ILogger<DatabaseConnection> _logger;
@@ -18,7 +18,7 @@ namespace WeatherAlertAPI.Services
             _logger = logger;
         }
 
-        public IDbConnection CreateConnection()
+        public virtual IDbConnection CreateConnection()
         {
             try
             {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
@@ -9,10 +10,10 @@ namespace WeatherAlertAPI.Services
 {
     public class PreferenciasService : IPreferenciasService
     {
-        private readonly DatabaseConnection _db;
+        private readonly IDatabaseConnection _db;
         private readonly ILogger<PreferenciasService> _logger;
 
-        public PreferenciasService(DatabaseConnection db, ILogger<PreferenciasService> logger)
+        public PreferenciasService(IDatabaseConnection db, ILogger<PreferenciasService> logger)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
             _logger = logger;
@@ -20,43 +21,47 @@ namespace WeatherAlertAPI.Services
 
         public async Task<PreferenciasNotificacao> CreatePreferenciaAsync(PreferenciasNotificacao preferencia)
         {
-            if (preferencia == null)
-                throw new ArgumentNullException(nameof(preferencia));
-
-            if (string.IsNullOrWhiteSpace(preferencia.Cidade))
-                throw new ArgumentException("Cidade é obrigatória", nameof(preferencia));
-
-            if (string.IsNullOrWhiteSpace(preferencia.Estado))
-                throw new ArgumentException("Estado é obrigatório", nameof(preferencia));
-
-            if (!preferencia.TemperaturaMin.HasValue && !preferencia.TemperaturaMax.HasValue)
-                throw new ArgumentException("Pelo menos um limite de temperatura deve ser definido", nameof(preferencia));
-
-            const string sql = @"
-                INSERT INTO PREFERENCIAS_NOTIFICACAO 
-                (CIDADE, ESTADO, TEMPERATURA_MIN, TEMPERATURA_MAX, ATIVO, DATA_CRIACAO, DATA_ATUALIZACAO) 
-                VALUES 
-                (:Cidade, :Estado, :TemperaturaMin, :TemperaturaMax, :Ativo, :DataCriacao, :DataAtualizacao)
-                RETURNING ID_PREFERENCIA INTO :IdPreferencia";
-
-            preferencia.DataCriacao = DateTime.Now;
-            preferencia.DataAtualizacao = DateTime.Now;
-
-            using var conn = _db.CreateConnection();
-            var parameters = new
+            try
             {
-                preferencia.Cidade,
-                preferencia.Estado,
-                preferencia.TemperaturaMin,
-                preferencia.TemperaturaMax,
-                preferencia.Ativo,
-                preferencia.DataCriacao,
-                preferencia.DataAtualizacao,
-                IdPreferencia = 0
-            };
+                if (preferencia == null)
+                    throw new ArgumentNullException(nameof(preferencia));
 
-            await conn.ExecuteAsync(sql, parameters);
-            return preferencia;
+                if (string.IsNullOrWhiteSpace(preferencia.Cidade))
+                    throw new ArgumentException("Cidade é obrigatória", nameof(preferencia));
+
+                if (string.IsNullOrWhiteSpace(preferencia.Estado))
+                    throw new ArgumentException("Estado é obrigatório", nameof(preferencia));
+
+                if (!preferencia.TemperaturaMin.HasValue && !preferencia.TemperaturaMax.HasValue)
+                    throw new ArgumentException("Pelo menos um limite de temperatura deve ser definido", nameof(preferencia));
+
+                var parameters = new DynamicParameters();
+                parameters.Add("p_cidade", preferencia.Cidade);
+                parameters.Add("p_estado", preferencia.Estado);
+                parameters.Add("p_temperatura_min", preferencia.TemperaturaMin);
+                parameters.Add("p_temperatura_max", preferencia.TemperaturaMax);
+                parameters.Add("p_ativo", preferencia.Ativo ? 1 : 0);
+                parameters.Add("p_id_preferencia", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                using var conn = _db.CreateConnection();
+                await conn.ExecuteAsync(
+                    "SP_INSERIR_PREFERENCIA",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                preferencia.IdPreferencia = parameters.Get<int>("p_id_preferencia");
+                preferencia.DataCriacao = DateTime.Now;
+                preferencia.DataAtualizacao = DateTime.Now;
+
+                _logger.LogInformation("Preferência criada com sucesso. ID: {IdPreferencia}", preferencia.IdPreferencia);
+                return preferencia;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar preferência");
+                throw;
+            }
         }
 
         public async Task<IEnumerable<PreferenciasNotificacao>> GetPreferenciasAsync(string? cidade = null, string? estado = null)
@@ -65,29 +70,17 @@ namespace WeatherAlertAPI.Services
             {
                 _logger.LogInformation("Buscando preferências. Filtros: Cidade={Cidade}, Estado={Estado}", cidade, estado);
 
-                var sql = @"SELECT 
-                    ID_PREFERENCIA as IdPreferencia,
-                    CIDADE,
-                    ESTADO,
-                    TEMPERATURA_MIN as TemperaturaMin,
-                    TEMPERATURA_MAX as TemperaturaMax,
-                    ATIVO,
-                    DATA_CRIACAO as DataCriacao,
-                    DATA_ATUALIZACAO as DataAtualizacao
-                    FROM PREFERENCIAS_NOTIFICACAO
-                    WHERE 1=1";
-
-                if (!string.IsNullOrWhiteSpace(cidade))
-                    sql += " AND CIDADE = :cidade";
-                if (!string.IsNullOrWhiteSpace(estado))
-                    sql += " AND ESTADO = :estado";
+                var parameters = new DynamicParameters();
+                parameters.Add("p_cidade", cidade);
+                parameters.Add("p_estado", estado);
+                parameters.Add("p_preferencias", dbType: DbType.Object, direction: ParameterDirection.Output);
 
                 using var conn = _db.CreateConnection();
-                _logger.LogInformation("Executando query: {Sql}", sql);
-                
-                var result = await conn.QueryAsync<PreferenciasNotificacao>(sql, new { cidade, estado });
-                _logger.LogInformation("Preferências encontradas: {Count}", result.Count());
-                return result;
+                return await conn.QueryAsync<PreferenciasNotificacao>(
+                    "SP_CONSULTAR_PREFERENCIAS",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             catch (Exception ex)
             {
@@ -98,68 +91,101 @@ namespace WeatherAlertAPI.Services
 
         public async Task<PreferenciasNotificacao?> GetPreferenciaByIdAsync(int id)
         {
-            if (id <= 0)
-                throw new ArgumentException("ID deve ser maior que zero", nameof(id));
+            try
+            {
+                if (id <= 0)
+                    throw new ArgumentException("ID deve ser maior que zero", nameof(id));
 
-            const string sql = @"SELECT 
-                ID_PREFERENCIA as IdPreferencia,
-                CIDADE,
-                ESTADO,
-                TEMPERATURA_MIN as TemperaturaMin,
-                TEMPERATURA_MAX as TemperaturaMax,
-                ATIVO,
-                DATA_CRIACAO as DataCriacao,
-                DATA_ATUALIZACAO as DataAtualizacao
-                FROM PREFERENCIAS_NOTIFICACAO 
-                WHERE ID_PREFERENCIA = :id";
+                var parameters = new DynamicParameters();
+                parameters.Add("p_id_preferencia", id);
+                parameters.Add("p_preferencia", dbType: DbType.Object, direction: ParameterDirection.Output);
 
-            using var conn = _db.CreateConnection();
-            return await conn.QueryFirstOrDefaultAsync<PreferenciasNotificacao>(sql, new { id });
+                using var conn = _db.CreateConnection();
+                var result = await conn.QueryFirstOrDefaultAsync<PreferenciasNotificacao>(
+                    "SP_BUSCAR_PREFERENCIA_POR_ID",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                if (result == null)
+                    _logger.LogWarning("Preferência não encontrada. ID: {Id}", id);
+                else
+                    _logger.LogInformation("Preferência encontrada. ID: {Id}", id);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar preferência por ID");
+                throw;
+            }
         }
 
         public async Task UpdatePreferenciaAsync(PreferenciasNotificacao preferencia)
         {
-            if (preferencia == null)
-                throw new ArgumentNullException(nameof(preferencia));
+            try
+            {
+                if (preferencia == null)
+                    throw new ArgumentNullException(nameof(preferencia));
 
-            if (preferencia.IdPreferencia <= 0)
-                throw new ArgumentException("ID deve ser maior que zero", nameof(preferencia));
+                if (preferencia.IdPreferencia <= 0)
+                    throw new ArgumentException("ID deve ser maior que zero", nameof(preferencia));
 
-            if (string.IsNullOrWhiteSpace(preferencia.Cidade))
-                throw new ArgumentException("Cidade é obrigatória", nameof(preferencia));
+                if (string.IsNullOrWhiteSpace(preferencia.Cidade))
+                    throw new ArgumentException("Cidade é obrigatória", nameof(preferencia));
 
-            if (string.IsNullOrWhiteSpace(preferencia.Estado))
-                throw new ArgumentException("Estado é obrigatório", nameof(preferencia));
+                if (string.IsNullOrWhiteSpace(preferencia.Estado))
+                    throw new ArgumentException("Estado é obrigatório", nameof(preferencia));
 
-            const string sql = @"
-                UPDATE PREFERENCIAS_NOTIFICACAO 
-                SET CIDADE = :Cidade,
-                    ESTADO = :Estado,
-                    TEMPERATURA_MIN = :TemperaturaMin,
-                    TEMPERATURA_MAX = :TemperaturaMax,
-                    ATIVO = :Ativo,
-                    DATA_ATUALIZACAO = :DataAtualizacao
-                WHERE ID_PREFERENCIA = :IdPreferencia";
+                var parameters = new DynamicParameters();
+                parameters.Add("p_id_preferencia", preferencia.IdPreferencia);
+                parameters.Add("p_cidade", preferencia.Cidade);
+                parameters.Add("p_estado", preferencia.Estado);
+                parameters.Add("p_temperatura_min", preferencia.TemperaturaMin);
+                parameters.Add("p_temperatura_max", preferencia.TemperaturaMax);
+                parameters.Add("p_ativo", preferencia.Ativo ? 1 : 0);
 
-            preferencia.DataAtualizacao = DateTime.Now;
+                using var conn = _db.CreateConnection();
+                await conn.ExecuteAsync(
+                    "SP_ATUALIZAR_PREFERENCIA",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
 
-            using var conn = _db.CreateConnection();
-            var result = await conn.ExecuteAsync(sql, preferencia);
-            if (result == 0)
-                throw new KeyNotFoundException($"Preferência com ID {preferencia.IdPreferencia} não encontrada");
+                preferencia.DataAtualizacao = DateTime.Now;
+                _logger.LogInformation("Preferência atualizada com sucesso. ID: {IdPreferencia}", preferencia.IdPreferencia);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar preferência");
+                throw;
+            }
         }
 
         public async Task DeletePreferenciaAsync(int id)
         {
-            if (id <= 0)
-                throw new ArgumentException("ID deve ser maior que zero", nameof(id));
+            try
+            {
+                if (id <= 0)
+                    throw new ArgumentException("ID deve ser maior que zero", nameof(id));
 
-            const string sql = "DELETE FROM PREFERENCIAS_NOTIFICACAO WHERE ID_PREFERENCIA = :id";
-            
-            using var conn = _db.CreateConnection();
-            var result = await conn.ExecuteAsync(sql, new { id });
-            if (result == 0)
-                throw new KeyNotFoundException($"Preferência com ID {id} não encontrada");
+                var parameters = new DynamicParameters();
+                parameters.Add("p_id_preferencia", id);
+
+                using var conn = _db.CreateConnection();
+                await conn.ExecuteAsync(
+                    "SP_EXCLUIR_PREFERENCIA",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                _logger.LogInformation("Preferência excluída com sucesso. ID: {Id}", id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir preferência");
+                throw;
+            }
         }
     }
 }

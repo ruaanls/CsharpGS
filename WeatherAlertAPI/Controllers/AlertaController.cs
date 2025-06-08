@@ -37,8 +37,6 @@ namespace WeatherAlertAPI.Controllers
         /// <summary>
         /// Obtém um alerta específico pelo ID
         /// </summary>
-        /// <param name="id">ID do alerta</param>
-        /// <returns>Detalhes do alerta de temperatura</returns>
         /// <response code="200">Retorna o alerta encontrado</response>
         /// <response code="404">Alerta não encontrado</response>
         [HttpGet("{id}")]
@@ -56,8 +54,6 @@ namespace WeatherAlertAPI.Controllers
         /// <summary>
         /// Cria um novo alerta de temperatura
         /// </summary>
-        /// <param name="alerta">Dados do alerta</param>
-        /// <returns>Alerta criado</returns>
         /// <response code="201">Retorna o alerta criado</response>
         /// <response code="400">Dados inválidos</response>
         [HttpPost]
@@ -72,9 +68,6 @@ namespace WeatherAlertAPI.Controllers
         /// <summary>
         /// Atualiza o status de um alerta
         /// </summary>
-        /// <param name="id">ID do alerta</param>
-        /// <param name="status">Novo status do alerta (ATIVO/INATIVO)</param>
-        /// <returns>Nenhum conteúdo em caso de sucesso</returns>
         /// <response code="204">Status atualizado com sucesso</response>
         /// <response code="404">Alerta não encontrado</response>
         [HttpPut("{id}/status")]
@@ -93,7 +86,6 @@ namespace WeatherAlertAPI.Controllers
         /// <summary>
         /// Verifica as temperaturas atuais e cria alertas se necessário
         /// </summary>
-        /// <returns>OK quando a verificação for concluída</returns>
         /// <response code="200">Verificação realizada com sucesso</response>
         [HttpPost("check")]
         [ProducesResponseType(StatusCodes.Status200OK)]

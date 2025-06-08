@@ -94,13 +94,10 @@ namespace WeatherAlertAPI.Tests
 
             // Assert
             Assert.IsType<NoContentResult>(result);
-        }
-
-        [Fact]
+        }        [Fact]
         public async Task GetPreferencias_ReturnsList()
         {
             // Arrange
-            var mockService = new Mock<IPreferenciasService>();
             var expectedPreferencias = new List<PreferenciasNotificacao>
             {
                 new PreferenciasNotificacao 
@@ -113,13 +110,9 @@ namespace WeatherAlertAPI.Tests
                 }
             };
 
-            mockService.Setup(s => s.GetPreferenciasAsync(null, null))
-                      .ReturnsAsync(expectedPreferencias);
-
-            var controller = new PreferenciasController(mockService.Object);
-
-            // Act
-            var result = await controller.GetPreferencias();
+            _mockPreferenciasService.Setup(s => s.GetPreferenciasAsync(null, null))
+                      .ReturnsAsync(expectedPreferencias);            // Act
+            var result = await _preferenciasController.GetPreferencias();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -132,7 +125,6 @@ namespace WeatherAlertAPI.Tests
         public async Task GetPreferencia_WhenExists_ReturnsPreferencia()
         {
             // Arrange
-            var mockService = new Mock<IPreferenciasService>();
             var expectedPreferencia = new PreferenciasNotificacao
             {
                 IdPreferencia = 1,
@@ -142,13 +134,11 @@ namespace WeatherAlertAPI.Tests
                 TemperaturaMax = 30
             };
 
-            mockService.Setup(s => s.GetPreferenciaByIdAsync(1))
+            _mockPreferenciasService.Setup(s => s.GetPreferenciaByIdAsync(1))
                       .ReturnsAsync(expectedPreferencia);
 
-            var controller = new PreferenciasController(mockService.Object);
-
             // Act
-            var result = await controller.GetPreferencia(1);
+            var result = await _preferenciasController.GetPreferencia(1);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -160,7 +150,6 @@ namespace WeatherAlertAPI.Tests
         public async Task CreatePreferencia_ValidData_ReturnsCreated()
         {
             // Arrange
-            var mockService = new Mock<IPreferenciasService>();
             var newPreferencia = new PreferenciasNotificacao
             {
                 Cidade = "São Paulo",
@@ -169,20 +158,20 @@ namespace WeatherAlertAPI.Tests
                 TemperaturaMax = 30
             };
 
-            mockService.Setup(s => s.CreatePreferenciaAsync(It.IsAny<PreferenciasNotificacao>()))
-                      .ReturnsAsync(new PreferenciasNotificacao
-                      {
-                          IdPreferencia = 1,
-                          Cidade = "São Paulo",
-                          Estado = "SP",
-                          TemperaturaMin = 15,
-                          TemperaturaMax = 30
-                      });
+            var expectedPreferencia = new PreferenciasNotificacao
+            {
+                IdPreferencia = 1,
+                Cidade = "São Paulo",
+                Estado = "SP",
+                TemperaturaMin = 15,
+                TemperaturaMax = 30
+            };
 
-            var controller = new PreferenciasController(mockService.Object);
+            _mockPreferenciasService.Setup(s => s.CreatePreferenciaAsync(It.IsAny<PreferenciasNotificacao>()))
+                      .ReturnsAsync(expectedPreferencia);
 
             // Act
-            var result = await controller.CreatePreferencia(newPreferencia);
+            var result = await _preferenciasController.CreatePreferencia(newPreferencia);
 
             // Assert
             var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);

@@ -31,7 +31,6 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
-// Configure Swagger/OpenAPI
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -57,19 +56,14 @@ Principais funcionalidades:
         }
     });
 
-    // Enable XML comments
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 
-    // Enable annotations
     options.EnableAnnotations();
-
-    // Group endpoints by controller
     options.TagActionsBy(api => new[] { api.GroupName ?? api.ActionDescriptor.RouteValues["controller"] });
     options.DocInclusionPredicate((docName, api) => true);
 
-    // Add security definitions
     options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.ApiKey,
@@ -96,25 +90,22 @@ Principais funcionalidades:
     options.AddSecurityRequirement(securityRequirement);
 });
 
-// Configure settings
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("Database"));
 builder.Services.Configure<WeatherApiSettings>(
     builder.Configuration.GetSection("WeatherApi"));
 
-// Register services
 builder.Services.AddSingleton<DatabaseConnection>();
 builder.Services.AddScoped<IAlertaService, AlertaService>();
 builder.Services.AddScoped<IPreferenciasService, PreferenciasService>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
+builder.Services.AddScoped<IProceduresService, ProceduresService>();
 builder.Services.AddHttpClient();
 
-// Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -126,7 +117,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure pipeline (otimizado para API REST)
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -150,14 +140,12 @@ app.UseSwaggerUI(options =>
     options.EnableFilter();
 });
 
-// Middleware para forçar Content-Type application/json em todas as respostas
 app.Use(async (context, next) =>
-{
-    context.Response.OnStarting(() =>
+{    context.Response.OnStarting(() =>
     {
         if (!context.Response.Headers.ContainsKey("Content-Type"))
         {
-            context.Response.Headers.Add("Content-Type", "application/json");
+            context.Response.Headers["Content-Type"] = "application/json";
         }
         return Task.CompletedTask;
     });

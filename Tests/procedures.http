@@ -1,0 +1,39 @@
+### Testar Inserção de Preferência
+POST http://localhost:5000/api/preferencias
+Content-Type: application/json
+
+{
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "temperaturaMin": 15,
+  "temperaturaMax": 30,
+  "ativo": true
+}
+
+### Testar Busca de Preferências
+GET http://localhost:5000/api/preferencias
+
+### Testar Busca de Preferência por ID
+GET http://localhost:5000/api/preferencias/1
+
+### Testar Atualização de Status
+PUT http://localhost:5000/api/preferencias/1/status
+Content-Type: application/json
+
+"INATIVO"
+
+### Testar Criação de Alerta
+POST http://localhost:5000/api/alertas
+Content-Type: application/json
+
+{
+  "idPreferencia": 1,
+  "temperatura": 32.5,
+  "status": "ATIVO"
+}
+
+### Testar Busca de Alertas
+GET http://localhost:5000/api/alertas
+
+### Testar Busca de Alerta por ID
+GET http://localhost:5000/api/alertas/1

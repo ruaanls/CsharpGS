@@ -1,22 +1,29 @@
 using System;
 using System.Threading.Tasks;
-using WeatherAlertAPI.Services;
-using WeatherAlertAPI.Models;
-using WeatherAlertAPI.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
+using WeatherAlertAPI.Configuration;
+using WeatherAlertAPI.Models;
+using WeatherAlertAPI.Services;
 
 namespace WeatherAlertAPI.Tests
 {
     public class ProceduresTests
-    {
-        private readonly DatabaseConnection _db;
+    {        private readonly IDatabaseConnection _db;
         private readonly IPreferenciasService _preferenciasService;
-        private readonly IAlertaService _alertaService;        public ProceduresTests()
+        private readonly IAlertaService _alertaService;
+        private readonly ILogger<PreferenciasService> _preferenciasLogger;
+        private readonly ILogger<AlertaService> _alertaLogger;
+
+        public ProceduresTests()
         {
             _db = TestSetup.CreateRealDatabase();
-            _preferenciasService = new PreferenciasService(_db);
-            _alertaService = new AlertaService(_db);
+            _preferenciasLogger = new Mock<ILogger<PreferenciasService>>().Object;
+            _alertaLogger = new Mock<ILogger<AlertaService>>().Object;
+            _preferenciasService = new PreferenciasService(_db, _preferenciasLogger);
+            _alertaService = new AlertaService(_db, _alertaLogger);
         }
 
         [Fact]
@@ -96,6 +103,30 @@ namespace WeatherAlertAPI.Tests
             var updated = await _alertaService.GetAlertaByIdAsync(alertaId);
             Assert.NotNull(updated);
             Assert.Equal("INATIVO", updated.Status);
+        }
+
+        [Fact]
+        public async Task TestSP_EXCLUIR_PREFERENCIA()
+        {
+            // Arrange
+            // First, create a preferência to delete
+            var preferencia = new PreferenciasNotificacao
+            {
+                Cidade = "São Paulo",
+                Estado = "SP",
+                TemperaturaMin = 15,
+                TemperaturaMax = 30,
+                Ativo = true
+            };
+            var created = await _preferenciasService.CreatePreferenciaAsync(preferencia);
+
+            // Act
+            await _preferenciasService.DeletePreferenciaAsync(created.IdPreferencia);
+
+            // Assert
+            // Try to get the deleted preferência - should return null
+            var result = await _preferenciasService.GetPreferenciaByIdAsync(created.IdPreferencia);
+            Assert.Null(result);
         }
     }
 }

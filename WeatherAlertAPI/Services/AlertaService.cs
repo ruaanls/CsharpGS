@@ -1,93 +1,138 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Data;
 using Dapper;
+using Microsoft.Extensions.Logging;
 using WeatherAlertAPI.Models;
 
 namespace WeatherAlertAPI.Services
 {
     public class AlertaService : IAlertaService
     {
-        private readonly DatabaseConnection _db;
+        private readonly IDatabaseConnection _db;
+        private readonly ILogger<AlertaService> _logger;
 
-        public AlertaService(DatabaseConnection db)
+        public AlertaService(IDatabaseConnection db, ILogger<AlertaService> logger)
         {
-            _db = db;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<AlertaTemperatura> CreateAlertaAsync(AlertaTemperatura alerta)
         {
-            const string sql = @"
-                INSERT INTO ALERTAS_TEMPERATURA 
-                (CIDADE, ESTADO, TEMPERATURA, TIPO_ALERTA, MENSAGEM, DATA_HORA, STATUS) 
-                VALUES 
-                (:Cidade, :Estado, :Temperatura, :TipoAlerta, :Mensagem, :DataHora, :Status) 
-                RETURNING ID_ALERTA INTO :IdAlerta";
-
-            using var conn = _db.CreateConnection();
-            var parameters = new
+            try
             {
-                alerta.Cidade,
-                alerta.Estado,
-                alerta.Temperatura,
-                alerta.TipoAlerta,
-                alerta.Mensagem,
-                alerta.DataHora,
-                alerta.Status,
-                IdAlerta = 0
-            };
+                _logger.LogInformation("Criando alerta de temperatura para {Cidade}/{Estado}", alerta.Cidade, alerta.Estado);
 
-            await conn.ExecuteAsync(sql, parameters);
-            return alerta;
+                var parameters = new DynamicParameters();
+                parameters.Add("p_cidade", alerta.Cidade);
+                parameters.Add("p_estado", alerta.Estado);
+                parameters.Add("p_temperatura", alerta.Temperatura);
+                parameters.Add("p_tipo_alerta", alerta.TipoAlerta);
+                parameters.Add("p_mensagem", alerta.Mensagem);
+                parameters.Add("p_id_alerta", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                using var conn = _db.CreateConnection();
+                await conn.ExecuteAsync(
+                    "SP_INSERIR_ALERTA",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                alerta.IdAlerta = parameters.Get<int>("p_id_alerta");
+                alerta.DataHora = DateTime.Now;
+                alerta.Status = "ATIVO";
+
+                _logger.LogInformation("Alerta criado com sucesso. ID: {IdAlerta}", alerta.IdAlerta);
+                return alerta;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar alerta de temperatura");
+                throw;
+            }
         }
 
         public async Task<IEnumerable<AlertaTemperatura>> GetAlertasAsync(string? cidade = null, string? estado = null)
         {
-            var sql = @"SELECT 
-                ID_ALERTA as IdAlerta,
-                CIDADE,
-                ESTADO,
-                TEMPERATURA,
-                TIPO_ALERTA as TipoAlerta,
-                MENSAGEM,
-                DATA_HORA as DataHora,
-                STATUS
-                FROM ALERTAS_TEMPERATURA
-                WHERE 1=1";
+            try
+            {
+                _logger.LogInformation("Buscando alertas. Filtros: Cidade={Cidade}, Estado={Estado}", cidade, estado);
 
-            if (!string.IsNullOrEmpty(cidade))
-                sql += " AND CIDADE = :cidade";
-            if (!string.IsNullOrEmpty(estado))
-                sql += " AND ESTADO = :estado";
+                var parameters = new DynamicParameters();
+                parameters.Add("p_cidade", cidade);
+                parameters.Add("p_estado", estado);
+                parameters.Add("p_alertas", dbType: DbType.Object, direction: ParameterDirection.Output);
 
-            sql += " ORDER BY DATA_HORA DESC";
+                using var conn = _db.CreateConnection();
+                return await conn.QueryAsync<AlertaTemperatura>(
+                    "SP_CONSULTAR_ALERTAS",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar alertas");
+                throw;
+            }
+        }
 
-            using var conn = _db.CreateConnection();
-            return await conn.QueryAsync<AlertaTemperatura>(sql, new { cidade, estado });
-        }        public async Task<AlertaTemperatura?> GetAlertaByIdAsync(int id)
+        public async Task<AlertaTemperatura?> GetAlertaByIdAsync(int id)
         {
-            const string sql = @"SELECT 
-                ID_ALERTA as IdAlerta,
-                CIDADE,
-                ESTADO,
-                TEMPERATURA,
-                TIPO_ALERTA as TipoAlerta,
-                MENSAGEM,
-                DATA_HORA as DataHora,
-                STATUS
-                FROM ALERTAS_TEMPERATURA 
-                WHERE ID_ALERTA = :id";
+            try
+            {
+                _logger.LogInformation("Buscando alerta por ID: {Id}", id);
 
-            using var conn = _db.CreateConnection();
-            return await conn.QueryFirstOrDefaultAsync<AlertaTemperatura>(sql, new { id });
+                var parameters = new DynamicParameters();
+                parameters.Add("p_id_alerta", id);                parameters.Add("p_alerta", null, dbType: DbType.Object, direction: ParameterDirection.Output);
+
+                using var conn = _db.CreateConnection();
+                var result = await conn.QueryFirstOrDefaultAsync<AlertaTemperatura>(
+                    "SP_BUSCAR_ALERTA_POR_ID",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                if (result == null)
+                    _logger.LogWarning("Alerta não encontrado. ID: {Id}", id);
+                else
+                    _logger.LogInformation("Alerta encontrado. ID: {Id}", id);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar alerta por ID");
+                throw;
+            }
         }
 
         public async Task UpdateAlertaStatusAsync(int id, string status)
         {
-            const string sql = "UPDATE ALERTAS_TEMPERATURA SET STATUS = :status WHERE ID_ALERTA = :id";
-            
-            using var conn = _db.CreateConnection();
-            await conn.ExecuteAsync(sql, new { id, status });
+            try
+            {
+                _logger.LogInformation("Atualizando status do alerta {Id} para {Status}", id, status);
+
+                var parameters = new DynamicParameters();
+                parameters.Add("p_id_alerta", id);
+                parameters.Add("p_status", status);
+
+                using var conn = _db.CreateConnection();
+                await conn.ExecuteAsync(
+                    "SP_ATUALIZAR_STATUS_ALERTA",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                _logger.LogInformation("Status do alerta atualizado com sucesso");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar status do alerta");
+                throw;
+            }
         }
     }
 }

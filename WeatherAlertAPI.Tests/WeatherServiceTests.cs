@@ -1,7 +1,9 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
@@ -10,40 +12,40 @@ using Xunit;
 using WeatherAlertAPI.Configuration;
 using WeatherAlertAPI.Models;
 using WeatherAlertAPI.Services;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace WeatherAlertAPI.Tests
 {
-    public class WeatherServiceTests
+    public class WeatherServiceTests : TestBase
     {
+        private readonly WeatherService _service;
+        private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
         private readonly Mock<IAlertaService> _alertaServiceMock;
         private readonly Mock<IPreferenciasService> _preferenciasServiceMock;
         private readonly Mock<HttpMessageHandler> _httpHandlerMock;
-        private readonly HttpClient _httpClient;
-        private readonly WeatherApiSettings _weatherApiSettings;
-        private readonly WeatherService _service;
 
         public WeatherServiceTests()
         {
+            _httpClientFactoryMock = new Mock<IHttpClientFactory>();
             _alertaServiceMock = new Mock<IAlertaService>();
             _preferenciasServiceMock = new Mock<IPreferenciasService>();
             _httpHandlerMock = new Mock<HttpMessageHandler>();
-            _httpClient = new HttpClient(_httpHandlerMock.Object);
-            
-            _weatherApiSettings = new WeatherApiSettings
-            {
-                ApiKey = "test_api_key",
-                BaseUrl = "http://api.weatherapi.com/v1"
-            };
+
             var settingsMock = new Mock<IOptions<WeatherApiSettings>>();
-            settingsMock.Setup(x => x.Value).Returns(_weatherApiSettings);
+            settingsMock.Setup(x => x.Value)
+                .Returns(new WeatherApiSettings
+                {
+                    ApiKey = "test-key",
+                    BaseUrl = "http://api.weatherapi.com/v1"
+                });            var client = new HttpClient(_httpHandlerMock.Object);
+            _httpClientFactoryMock.Setup(x => x.CreateClient(It.IsAny<string>()))
+                .Returns(client);
 
             _service = new WeatherService(
-                _httpClient,
+                _httpClientFactoryMock.Object,
                 settingsMock.Object,
                 _alertaServiceMock.Object,
-                _preferenciasServiceMock.Object);
+                _preferenciasServiceMock.Object,
+                WeatherLoggerMock.Object);
         }
 
         [Fact(DisplayName = "Deve obter temperatura atual com sucesso")]
