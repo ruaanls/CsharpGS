@@ -34,10 +34,10 @@
                         "value": "application/json"
                     }
                 ],
-                "url": {                    "raw": "http://localhost:5231/api/Preferencias",
-                    "protocol": "http",
+                "url": {                    "raw": "https://localhost:7044/api/Preferencias",
+                    "protocol": "https",
                     "host": ["localhost"],
-                    "port": "5231",
+                    "port": "7044",
                     "path": ["api", "Preferencias"]
                 },
                 "body": {
