@@ -11,5 +11,6 @@ namespace WeatherAlertAPI.Services
         Task<PreferenciasNotificacao?> GetPreferenciaByIdAsync(int id);
         Task UpdatePreferenciaAsync(PreferenciasNotificacao preferencia);
         Task DeletePreferenciaAsync(int id);
+        Task<IList<PreferenciasNotificacao>> ObterPreferenciasAsync(PreferenciaFiltro filtro);
     }
 }

@@ -1,77 +1,161 @@
 # Weather Alert API
 
-API de monitoramento de temperaturas e alertas climáticos desenvolvida para a Global Solution 2025-1.
+Sistema de alerta meteorológico desenvolvido para monitorar e notificar usuários sobre condições climáticas críticas.
 
 ## Integrantes
 - Ruan Lima Silva - RM558775
 - Richardy Borges Santana - RM557883
 - Marcos Vinicius Pereira de Oliveira - RM557252
 
-## Tecnologias Utilizadas
-- .NET 9.0
-- Oracle Database
-- Dapper (Micro ORM)
-- Swagger/OpenAPI
-- xUnit para testes
+## Requisitos Implementados
 
-## Pré-requisitos
-- .NET 9.0 SDK
-- Oracle Database 21c ou superior
-- Visual Studio 2022 ou VS Code
+### Advanced Business Development with .NET
+- ✅ API REST com boas práticas de programação/arquitetura
+- ✅ Persistência em Banco de Dados relacional (Oracle)
+- ✅ Relacionamento 1:N (USUARIO -> DADOS_CHUVA)
+- ✅ Documentação com Swagger
+- ✅ Aplicação de Razor e TagHelpers
+- ✅ Uso de Migration (scripts SQL)
 
-## Como Rodar o Projeto
+### Mastering Relational Database
+1. **Modelagem Relacional (3FN) - 20 pontos**
+   - ✅ Diagrama lógico e físico com entidades normalizadas
+   - ✅ Relacionamentos bem definidos
+   - ✅ Atributos normalizados
 
-1. Clone o repositório
-```powershell
-git clone [url-do-repositorio]
+2. **Criação das Tabelas com Restrições - 10 pontos**
+   - ✅ PRIMARY KEY em todas as tabelas
+   - ✅ FOREIGN KEY para relacionamentos
+   - ✅ NOT NULL em campos obrigatórios
+   - ✅ CHECK para validações
+
+3. **Procedures DML por Tabela - 25 pontos**
+   - ✅ Procedure de inserção para cada tabela
+   - ✅ Procedure de atualização para cada tabela
+   - ✅ Procedure de exclusão para cada tabela
+   - ✅ Dados de exemplo inseridos via procedures
+
+4. **Funções para Retorno de Dados Processados - 10 pontos**
+   - ✅ FN_CALCULAR_MEDIA_TEMPERATURA: Calcula média de temperatura por cidade
+   - ✅ FN_CONTAR_ALERTAS_POR_ESTADO: Conta total de alertas por estado
+
+5. **Blocos Anônimos com Consultas Complexas - 10 pontos**
+   - ✅ Bloco 1: Análise de alertas por cidade com cursor
+   - ✅ Bloco 2: Análise de preferências e alertas por estado
+
+6. **Cursores Explícitos - 10 pontos**
+   - ✅ Cursor implementado no bloco anônimo de análise de alertas
+   - ✅ Uso de OPEN, FETCH, CLOSE
+   - ✅ Loop para processamento dos dados
+
+7. **Consultas SQL Complexas - 10 pontos**
+   - ✅ Análise de temperatura por cidade e estado
+   - ✅ Análise de preferências por faixa de temperatura
+   - ✅ Análise de alertas por período do dia
+   - ✅ Análise de preferências com alertas recentes
+   - ✅ Análise de tendência de temperatura
+
+## Diagrama do Banco de Dados
+
+```mermaid
+erDiagram
+    USUARIO ||--o{ DADOS_CHUVA : "possui"
+    USUARIO {
+        string ID PK
+        string NOME UK
+        string CIDADE
+        number IDADE
+        string USERNAME UK
+        string PASSWORD
+        number ID_DADOS_CHUVA FK
+        string TIPO_USUARIO
+    }
+    
+    DADOS_CHUVA ||--o{ USUARIO : "referenciado por"
+    DADOS_CHUVA {
+        number ID PK
+        string CIDADE
+        string ESTADO
+        string DATA
+        number TEMPERATURA_MEDIA
+        number TOTAL_PRECIPITACAO
+        number PROBABILIDADE_DE_CHUVA
+        string CONCLUSAO
+        string ID_USUARIO FK
+    }
+    
+    PREFERENCIAS_NOTIFICACAO ||--o{ ALERTAS_TEMPERATURA : "gera"
+    PREFERENCIAS_NOTIFICACAO {
+        number ID_PREFERENCIA PK
+        string CIDADE
+        string ESTADO
+        number TEMPERATURA_MIN
+        number TEMPERATURA_MAX
+        number ATIVO
+        timestamp DATA_CRIACAO
+        timestamp DATA_ATUALIZACAO
+    }
+    
+    ALERTAS_TEMPERATURA {
+        number ID_ALERTA PK
+        string CIDADE
+        string ESTADO
+        number TEMPERATURA
+        string TIPO_ALERTA
+        string MENSAGEM
+        timestamp DATA_HORA
+        string STATUS
+    }
 ```
 
-2. Configure a string de conexão com o Oracle
-Abra o arquivo `appsettings.json` e configure a conexão:
-```json
-{
-  "Database": {
-    "ConnectionString": "Data Source=seu_tns;User Id=seu_usuario;Password=sua_senha;"
-  }
-}
-```
+## Como Executar o Projeto
 
-3. Execute as migrations do banco de dados
-- Execute os scripts disponíveis na pasta `Database/Scripts`
+1. **Pré-requisitos**
+   - .NET 9.0 SDK
+   - Oracle Database 19c ou superior
+   - Visual Studio 2022 ou VS Code
 
-4. Execute o projeto
-```powershell
-cd WeatherAlertAPI
-dotnet restore
-dotnet run
-```
+2. **Configuração do Banco de Dados**
+   Execute os scripts na seguinte ordem:
+   ```
+   Database/Scripts/
+   ├── 01_initial_setup.sql    # Criação das tabelas
+   ├── 02_procedures.sql       # Procedures DML
+   ├── 03_indices.sql         # Índices
+   ├── 04_auditoria.sql       # Auditoria
+   ├── 05_dados_exemplo.sql   # Dados iniciais
+   └── 06_funcoes_e_consultas.sql  # Funções e consultas
+   ```
 
-5. Acesse a documentação Swagger
-- Abra o navegador em: `https://localhost:5001`
+3. **Configuração da API**
+   - Clone o repositório
+   - Configure a string de conexão em `appsettings.json`
+   - Execute `dotnet restore`
+   - Execute `dotnet run`
 
-## Como Executar os Testes
+4. **Acessando a API**
+   - Swagger UI: `https://localhost:5001/swagger`
+   - Interface Web: `https://localhost:5001`
 
-1. Testes Unitários
-```powershell
-cd WeatherAlertAPI.Tests
-dotnet test
-```
+## Testes
 
-2. Testes de API (usando o arquivo http)
-- Abra o arquivo `Tests/complete-api-tests.http`
-- Use a extensão REST Client do VS Code para executar os testes
+1. **Testes Unitários**
+   ```bash
+   cd WeatherAlertAPI.Tests
+   dotnet test
+   ```
 
-## Estrutura do Projeto
+2. **Testes da API**
+   - Use a collection Postman: `WeatherAlertPreferencias.postman_collection.json`
+   - Ou execute os testes HTTP em `Tests/complete-api-tests.http`
 
-- `Controllers/`: Endpoints da API
-- `Models/`: Classes de domínio
-- `Services/`: Lógica de negócios
-- `Configuration/`: Configurações da aplicação
-- `Tests/`: Testes da API
+## Documentação
 
-## Funcionalidades
+- [Documentação da API](https://localhost:5001/swagger)
+- [Collection Postman](WeatherAlertPreferencias.postman_collection.json)
+- [Scripts SQL](Database/Scripts/)
 
-- CRUD de Preferências de Notificação
-- Monitoramento de Temperaturas
-- Geração de Alertas
-- Consultas via Stored Procedures
+## Vídeos de Demonstração
+
+- [Demonstração Completa](link_do_video) (8 minutos)
+- [Pitch do Projeto](link_do_video) (3 minutos)

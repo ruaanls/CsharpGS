@@ -5,6 +5,8 @@ using System.Data;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using WeatherAlertAPI.Models;
+using Oracle.ManagedDataAccess.Client;
+using Dapper.Oracle;
 
 namespace WeatherAlertAPI.Services
 {
@@ -25,13 +27,13 @@ namespace WeatherAlertAPI.Services
             {
                 _logger.LogInformation("Criando alerta de temperatura para {Cidade}/{Estado}", alerta.Cidade, alerta.Estado);
 
-                var parameters = new DynamicParameters();
+                var parameters = new OracleDynamicParameters();
                 parameters.Add("p_cidade", alerta.Cidade);
                 parameters.Add("p_estado", alerta.Estado);
                 parameters.Add("p_temperatura", alerta.Temperatura);
                 parameters.Add("p_tipo_alerta", alerta.TipoAlerta);
                 parameters.Add("p_mensagem", alerta.Mensagem);
-                parameters.Add("p_id_alerta", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                parameters.Add("p_id_alerta", dbType: OracleMappingType.Int32, direction: ParameterDirection.Output);
 
                 using var conn = _db.CreateConnection();
                 await conn.ExecuteAsync(
@@ -60,10 +62,10 @@ namespace WeatherAlertAPI.Services
             {
                 _logger.LogInformation("Buscando alertas. Filtros: Cidade={Cidade}, Estado={Estado}", cidade, estado);
 
-                var parameters = new DynamicParameters();
+                var parameters = new OracleDynamicParameters();
                 parameters.Add("p_cidade", cidade);
                 parameters.Add("p_estado", estado);
-                parameters.Add("p_alertas", dbType: DbType.Object, direction: ParameterDirection.Output);
+                parameters.Add("p_alertas", dbType: OracleMappingType.RefCursor, direction: ParameterDirection.Output);
 
                 using var conn = _db.CreateConnection();
                 return await conn.QueryAsync<AlertaTemperatura>(
@@ -85,8 +87,9 @@ namespace WeatherAlertAPI.Services
             {
                 _logger.LogInformation("Buscando alerta por ID: {Id}", id);
 
-                var parameters = new DynamicParameters();
-                parameters.Add("p_id_alerta", id);                parameters.Add("p_alerta", null, dbType: DbType.Object, direction: ParameterDirection.Output);
+                var parameters = new OracleDynamicParameters();
+                parameters.Add("p_id_alerta", id);
+                parameters.Add("p_alerta", null, dbType: OracleMappingType.RefCursor, direction: ParameterDirection.Output);
 
                 using var conn = _db.CreateConnection();
                 var result = await conn.QueryFirstOrDefaultAsync<AlertaTemperatura>(

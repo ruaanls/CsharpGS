@@ -187,5 +187,11 @@ namespace WeatherAlertAPI.Services
                 throw;
             }
         }
+
+        public async Task<IList<PreferenciasNotificacao>> ObterPreferenciasAsync(PreferenciaFiltro filtro)
+        {
+            // Exemplo básico: retornar lista vazia ou buscar do banco
+            return new List<PreferenciasNotificacao>();
+        }
     }
 }

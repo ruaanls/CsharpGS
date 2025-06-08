@@ -24,32 +24,7 @@
             * NORMAL: Temperatura dentro dos limites
             </remarks>
         </member>
-        <member name="M:WeatherAlertAPI.Controllers.AlertaController.GetAlertas(System.String,System.String)">
-            <summary>
-            Lista todos os alertas de temperatura
-            </summary>
-            <remarks>
-            Retorna todos os alertas de temperatura gerados, com opção de filtrar por cidade e estado.
-            
-            Exemplo de requisição:
-            ```http
-            GET /api/Alerta?cidade=São Paulo&amp;estado=SP
-            ```
-            
-            O resultado inclui:
-            * ID do alerta
-            * Cidade e estado monitorados
-            * Temperatura registrada
-            * Tipo do alerta (ALTO, BAIXO, NORMAL)
-            * Mensagem descritiva
-            * Status atual do alerta
-            * Data e hora da ocorrência
-            </remarks>
-            <param name="cidade">Filtra alertas por cidade específica</param>
-            <param name="estado">Filtra alertas por estado específico</param>
-            <response code="200">Lista de alertas encontrados</response>
-            <response code="204">Nenhum alerta encontrado com os filtros fornecidos</response>
-        </member>
+        <!-- Badly formed XML comment ignored for member "M:WeatherAlertAPI.Controllers.AlertaController.GetAlertas(System.String,System.String)" -->
         <member name="M:WeatherAlertAPI.Controllers.AlertaController.GetAlerta(System.Int32)">
             <summary>
             Obtém um alerta específico pelo ID
@@ -118,6 +93,8 @@
             <param name="estado">Filtra preferências por estado específico</param>
             <response code="200">Lista de preferências encontradas</response>
             <response code="204">Nenhuma preferência encontrada com os filtros fornecidos</response>
+            <response code="400">Dados inválidos ou regras de validação não atendidas</response>
+            <response code="500">Erro ao processar a requisição</response>
         </member>
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.GetPreferencia(System.Int32)">
             <summary>
@@ -127,6 +104,7 @@
             <returns>Detalhes da preferência</returns>
             <response code="200">Retorna a preferência encontrada</response>
             <response code="404">Preferência não encontrada</response>
+            <response code="500">Erro ao processar a requisição</response>
         </member>
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.CreatePreferencia(WeatherAlertAPI.Models.PreferenciasNotificacao)">
             <summary>
@@ -157,6 +135,7 @@
             <param name="preferencia">Dados da nova preferência</param>
             <response code="201">Preferência criada com sucesso</response>
             <response code="400">Dados inválidos ou regras de validação não atendidas</response>
+            <response code="500">Erro ao processar a requisição</response>
         </member>
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.UpdatePreferencia(System.Int32,WeatherAlertAPI.Models.PreferenciasNotificacao)">
             <summary>
@@ -168,6 +147,7 @@
             <response code="204">Preferência atualizada com sucesso</response>
             <response code="400">Dados inválidos</response>
             <response code="404">Preferência não encontrada</response>
+            <response code="500">Erro ao processar a requisição</response>
         </member>
         <member name="M:WeatherAlertAPI.Controllers.PreferenciasController.DeletePreferencia(System.Int32)">
             <summary>
@@ -177,6 +157,7 @@
             <returns>Nenhum conteúdo</returns>
             <response code="204">Preferência excluída com sucesso</response>
             <response code="404">Preferência não encontrada</response>
+            <response code="500">Erro ao processar a requisição</response>
         </member>
         <member name="T:WeatherAlertAPI.Models.AlertaTemperatura">
             <summary>
@@ -260,6 +241,21 @@
             Represents an API error response with hypermedia links
             </summary>
         </member>
+        <member name="T:WeatherAlertAPI.Models.ErrorDetail">
+            <summary>
+            Represents the detailed information of an API error.
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.ErrorDetail.Code">
+            <summary>
+            A unique code identifying the error.
+            </summary>
+        </member>
+        <member name="P:WeatherAlertAPI.Models.ErrorDetail.Message">
+            <summary>
+            A human-readable message describing the error.
+            </summary>
+        </member>
         <member name="T:WeatherAlertAPI.Models.HypermediaResponse`1">
             <summary>
             Base class for hypermedia responses with HATEOAS links
@@ -292,7 +288,7 @@
         </member>
         <member name="T:WeatherAlertAPI.Models.PreferenciasNotificacao">
             <summary>
-            Represents user preferences for weather alerts notifications
+            Preferências do usuário para notificações de alertas meteorológicos
             </summary>
             <example>
             {
@@ -309,24 +305,24 @@
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.IdPreferencia">
             <summary>
-            The unique identifier for the notification preference
+            Identificador único da preferência de notificação
             </summary>
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.Cidade">
             <summary>
-            The city for which weather alerts are requested
+            Cidade para monitoramento de alertas
             </summary>
             <example>São Paulo</example>
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.Estado">
             <summary>
-            The state (UF) where the city is located
+            Estado (UF) onde a cidade está localizada
             </summary>
             <example>SP</example>
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.TemperaturaMin">
             <summary>
-            The minimum temperature threshold for alerts (in Celsius)
+            Limite mínimo de temperatura para alertas (em Celsius)
             </summary>
             <example>15.5</example>
         </member>

@@ -30,11 +30,20 @@ namespace WeatherAlertAPI.Models
         }
     }
 
+    /// <summary>
+    /// Represents the detailed information of an API error.
+    /// </summary>
     public class ErrorDetail
     {
+        /// <summary>
+        /// A unique code identifying the error.
+        /// </summary>
         [JsonPropertyName("code")]
         public string Code { get; set; }
 
+        /// <summary>
+        /// A human-readable message describing the error.
+        /// </summary>
         [JsonPropertyName("message")]
         public string Message { get; set; }
     }

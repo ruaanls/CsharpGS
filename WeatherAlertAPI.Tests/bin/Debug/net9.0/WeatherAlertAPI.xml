@@ -292,7 +292,7 @@
         </member>
         <member name="T:WeatherAlertAPI.Models.PreferenciasNotificacao">
             <summary>
-            Represents user preferences for weather alerts notifications
+            Preferências do usuário para notificações de alertas meteorológicos
             </summary>
             <example>
             {
@@ -309,24 +309,24 @@
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.IdPreferencia">
             <summary>
-            The unique identifier for the notification preference
+            Identificador único da preferência de notificação
             </summary>
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.Cidade">
             <summary>
-            The city for which weather alerts are requested
+            Cidade para monitoramento de alertas
             </summary>
             <example>São Paulo</example>
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.Estado">
             <summary>
-            The state (UF) where the city is located
+            Estado (UF) onde a cidade está localizada
             </summary>
             <example>SP</example>
         </member>
         <member name="P:WeatherAlertAPI.Models.PreferenciasNotificacao.TemperaturaMin">
             <summary>
-            The minimum temperature threshold for alerts (in Celsius)
+            Limite mínimo de temperatura para alertas (em Celsius)
             </summary>
             <example>15.5</example>
         </member>

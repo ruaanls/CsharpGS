@@ -9,6 +9,8 @@ using System.Text.Json.Serialization;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using WeatherAlertAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -159,6 +161,13 @@ builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IProceduresService, ProceduresService>();
 builder.Services.AddHttpClient();
 
+// Adicionar o contexto do banco de dados
+builder.Services.AddDbContext<WeatherAlertContext>(options =>
+    options.UseOracle(builder.Configuration.GetConnectionString("OracleConnection")));
+
+builder.Services.AddRazorPages()
+    .AddRazorRuntimeCompilation();
+
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
@@ -218,5 +227,6 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapRazorPages();
 
 app.Run();

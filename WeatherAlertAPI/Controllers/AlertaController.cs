@@ -50,22 +50,79 @@ namespace WeatherAlertAPI.Controllers
         /// GET /api/Alerta?cidade=São Paulo&amp;estado=SP
         /// ```
         /// 
-        /// O resultado inclui:
-        /// * ID do alerta
-        /// * Cidade e estado monitorados
-        /// * Temperatura registrada
-        /// * Tipo do alerta (ALTO, BAIXO, NORMAL)
-        /// * Mensagem descritiva
-        /// * Status atual do alerta
-        /// * Data e hora da ocorrência
+        /// **Estrutura da Resposta (HypermediaResponse):**
+        /// A resposta é um objeto `HypermediaResponse` contendo a lista de alertas e links de navegação HATEOAS.
+        /// - **`data`**: Uma lista de objetos `AlertaTemperatura`, cada um com os detalhes do alerta.
+        /// - **`_links`**: Um objeto contendo URIs relacionadas para navegação. Inclui:
+        ///   - **`self`**: Link para a requisição atual.
+        ///   - **`check`**: Link para verificar e criar novos alertas (método POST).
+        ///   - **`preferences`**: Link para as preferências de notificação relacionadas à cidade/estado.
+        ///   - **`alerta_{id}`**: Links individuais para cada alerta retornado na lista, permitindo acesso direto aos detalhes de um alerta específico.
         /// </remarks>
         /// <param name="cidade">Filtra alertas por cidade específica</param>
         /// <param name="estado">Filtra alertas por estado específico</param>
-        /// <response code="200">Lista de alertas encontrados</response>
+        /// <response code="200">
+        /// Retorna um `HypermediaResponse` contendo uma lista de `AlertaTemperatura` e links de navegação.
+        /// 
+        /// Exemplo de Resposta:
+        /// ```json
+        /// {
+        ///   "data": [
+        ///     {
+        ///       "idAlerta": 1,
+        ///       "cidade": "São Paulo",
+        ///       "estado": "SP",
+        ///       "temperatura": 32.5,
+        ///       "tipoAlerta": "ALTO",
+        ///       "mensagem": "Temperatura acima do limite máximo.",
+        ///       "dataHora": "2025-06-08T10:00:00Z",
+        ///       "status": "ATIVO"
+        ///     },
+        ///     {
+        ///       "idAlerta": 2,
+        ///       "cidade": "Rio de Janeiro",
+        ///       "estado": "RJ",
+        ///       "temperatura": 12.1,
+        ///       "tipoAlerta": "BAIXO",
+        ///       "mensagem": "Temperatura abaixo do limite mínimo.",
+        ///       "dataHora": "2025-06-08T11:30:00Z",
+        ///       "status": "ATIVO"
+        ///     }
+        ///   ],
+        ///   "_links": {
+        ///     "self": {
+        ///       "href": "/api/Alerta?cidade=São%20Paulo&estado=SP",
+        ///       "method": "GET"
+        ///     },
+        ///     "check": {
+        ///       "href": "/api/Alerta/check",
+        ///       "method": "POST"
+        ///     },
+        ///     "preferences": {
+        ///       "href": "/api/Preferencias?cidade=São%20Paulo&estado=SP",
+        ///       "method": "GET"
+        ///     },
+        ///     "alerta_1": {
+        ///       "href": "/api/Alerta/1",
+        ///       "method": "GET"
+        ///     },
+        ///     "alerta_2": {
+        ///       "href": "/api/Alerta/2",
+        ///       "method": "GET"
+        ///     }
+        ///   }
+        /// }
+        /// ```
+        /// </response>
         /// <response code="204">Nenhum alerta encontrado com os filtros fornecidos</response>
+        /// <response code="400">Dados inválidos (ex: parâmetros de query mal formatados)</response>
+        /// <response code="500">Erro interno do servidor ao processar a requisição ou acessar o serviço de previsão do tempo.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<AlertaTemperatura>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]        public async Task<ActionResult<HypermediaResponse<IEnumerable<AlertaTemperatura>>>> GetAlertas(
+        [ProducesResponseType(typeof(HypermediaResponse<IEnumerable<AlertaTemperatura>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<HypermediaResponse<IEnumerable<AlertaTemperatura>>>> GetAlertas(
             [FromQuery] string? cidade = "",
             [FromQuery] string? estado = "")
         {
@@ -96,8 +153,9 @@ namespace WeatherAlertAPI.Controllers
         /// <response code="200">Retorna o alerta encontrado</response>
         /// <response code="404">Alerta não encontrado</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(AlertaTemperatura), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]        public async Task<ActionResult<HypermediaResponse<AlertaTemperatura>>> GetAlerta(int id)
+        [ProducesResponseType(typeof(HypermediaResponse<AlertaTemperatura>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<HypermediaResponse<AlertaTemperatura>>> GetAlerta(int id)
         {
             var alerta = await _alertaService.GetAlertaByIdAsync(id);
             if (alerta == null)
@@ -129,8 +187,9 @@ namespace WeatherAlertAPI.Controllers
         /// <response code="201">Retorna o alerta criado</response>
         /// <response code="400">Dados inválidos</response>
         [HttpPost]
-        [ProducesResponseType(typeof(AlertaTemperatura), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        public async Task<ActionResult<HypermediaResponse<AlertaTemperatura>>> CreateAlerta([FromBody] AlertaTemperatura alerta)
+        [ProducesResponseType(typeof(HypermediaResponse<AlertaTemperatura>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<HypermediaResponse<AlertaTemperatura>>> CreateAlerta([FromBody] AlertaTemperatura alerta)
         {
             try
             {
@@ -166,7 +225,7 @@ namespace WeatherAlertAPI.Controllers
         /// <response code="404">Alerta não encontrado</response>
         [HttpPut("{id}/status")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
         {
             var alerta = await _alertaService.GetAlertaByIdAsync(id);

@@ -52,9 +52,14 @@ namespace WeatherAlertAPI.Controllers
         /// <param name="estado">Filtra preferências por estado específico</param>
         /// <response code="200">Lista de preferências encontradas</response>
         /// <response code="204">Nenhuma preferência encontrada com os filtros fornecidos</response>
+        /// <response code="400">Dados inválidos ou regras de validação não atendidas</response>
+        /// <response code="500">Erro ao processar a requisição</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<PreferenciasNotificacao>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]        public async Task<ActionResult<HypermediaResponse<IEnumerable<PreferenciasNotificacao>>>> GetPreferencias(
+        [ProducesResponseType(typeof(HypermediaResponse<IEnumerable<PreferenciasNotificacao>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<HypermediaResponse<IEnumerable<PreferenciasNotificacao>>>> GetPreferencias(
             [FromQuery] string? cidade = "",
             [FromQuery] string? estado = "")
         {
@@ -86,9 +91,12 @@ namespace WeatherAlertAPI.Controllers
         /// <returns>Detalhes da preferência</returns>
         /// <response code="200">Retorna a preferência encontrada</response>
         /// <response code="404">Preferência não encontrada</response>
+        /// <response code="500">Erro ao processar a requisição</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(PreferenciasNotificacao), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]        public async Task<ActionResult<HypermediaResponse<PreferenciasNotificacao>>> GetPreferencia(int id)
+        [ProducesResponseType(typeof(HypermediaResponse<PreferenciasNotificacao>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<HypermediaResponse<PreferenciasNotificacao>>> GetPreferencia(int id)
         {
             var preferencia = await _preferenciasService.GetPreferenciaByIdAsync(id);
             if (preferencia == null)
@@ -143,9 +151,12 @@ namespace WeatherAlertAPI.Controllers
         /// <param name="preferencia">Dados da nova preferência</param>
         /// <response code="201">Preferência criada com sucesso</response>
         /// <response code="400">Dados inválidos ou regras de validação não atendidas</response>
+        /// <response code="500">Erro ao processar a requisição</response>
         [HttpPost]
-        [ProducesResponseType(typeof(PreferenciasNotificacao), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        public async Task<ActionResult<HypermediaResponse<PreferenciasNotificacao>>> CreatePreferencia([FromBody] PreferenciasNotificacao preferencia)
+        [ProducesResponseType(typeof(HypermediaResponse<PreferenciasNotificacao>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<HypermediaResponse<PreferenciasNotificacao>>> CreatePreferencia([FromBody] PreferenciasNotificacao preferencia)
         {
             try 
             {
@@ -184,10 +195,12 @@ namespace WeatherAlertAPI.Controllers
         /// <response code="204">Preferência atualizada com sucesso</response>
         /// <response code="400">Dados inválidos</response>
         /// <response code="404">Preferência não encontrada</response>
+        /// <response code="500">Erro ao processar a requisição</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdatePreferencia(int id, [FromBody] PreferenciasNotificacao preferencia)
         {
             if (id != preferencia.IdPreferencia)
@@ -204,9 +217,11 @@ namespace WeatherAlertAPI.Controllers
         /// <returns>Nenhum conteúdo</returns>
         /// <response code="204">Preferência excluída com sucesso</response>
         /// <response code="404">Preferência não encontrada</response>
+        /// <response code="500">Erro ao processar a requisição</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeletePreferencia(int id)
         {
             await _preferenciasService.DeletePreferenciaAsync(id);
