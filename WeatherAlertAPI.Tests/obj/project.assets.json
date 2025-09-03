@@ -3634,19 +3634,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\richa\\.nuget\\packages\\": {}
+    "C:\\Users\\T-GAMER\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\T-GAMER\\Desktop\\Fiap\\C#\\CsharpGS\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
       "projectName": "WeatherAlertAPI.Tests",
-      "projectPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
-      "packagesPath": "C:\\Users\\richa\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI.Tests\\obj\\",
+      "projectPath": "C:\\Users\\T-GAMER\\Desktop\\Fiap\\C#\\CsharpGS\\WeatherAlertAPI.Tests\\WeatherAlertAPI.Tests.csproj",
+      "packagesPath": "C:\\Users\\T-GAMER\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\T-GAMER\\Desktop\\Fiap\\C#\\CsharpGS\\WeatherAlertAPI.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\richa\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\T-GAMER\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -3658,8 +3658,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj": {
-              "projectPath": "C:\\Users\\richa\\OneDrive\\Documentos\\RichardyBS\\CsharpGS1\\WeatherAlertAPI\\WeatherAlertAPI.csproj"
+            "C:\\Users\\T-GAMER\\Desktop\\Fiap\\C#\\CsharpGS\\WeatherAlertAPI\\WeatherAlertAPI.csproj": {
+              "projectPath": "C:\\Users\\T-GAMER\\Desktop\\Fiap\\C#\\CsharpGS\\WeatherAlertAPI\\WeatherAlertAPI.csproj"
             }
           }
         }
@@ -3674,7 +3674,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net9.0": {
@@ -3727,7 +3727,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
