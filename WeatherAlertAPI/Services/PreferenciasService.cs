@@ -59,7 +59,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao criar preferência");
                 throw;
             }
         }
@@ -84,7 +83,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar preferências");
                 throw;
             }
         }
@@ -116,7 +114,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar preferência por ID");
                 throw;
             }
         }
@@ -157,7 +154,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao atualizar preferência");
                 throw;
             }
         }
@@ -183,7 +179,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao excluir preferência");
                 throw;
             }
         }

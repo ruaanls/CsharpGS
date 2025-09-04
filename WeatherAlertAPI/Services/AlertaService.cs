@@ -51,7 +51,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao criar alerta de temperatura");
                 throw;
             }
         }
@@ -76,7 +75,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar alertas");
                 throw;
             }
         }
@@ -107,7 +105,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar alerta por ID");
                 throw;
             }
         }
@@ -133,7 +130,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao atualizar status do alerta");
                 throw;
             }
         }

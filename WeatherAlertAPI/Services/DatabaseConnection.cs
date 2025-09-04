@@ -30,7 +30,6 @@ namespace WeatherAlertAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao criar conexão com o banco de dados");
                 throw;
             }
         }

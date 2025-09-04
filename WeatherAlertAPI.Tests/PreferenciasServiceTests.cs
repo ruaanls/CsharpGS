@@ -85,21 +85,32 @@ namespace WeatherAlertAPI.Tests
 
             SetupMockExecute();
 
-            // Act & Assert
+            // Act
             await _service.UpdatePreferenciaAsync(preferencia);
-            // Success is indicated by no exception being thrown
-        }
 
+            // Assert
+            ConnectionMock.Verify(x => x.ExecuteAsync(
+                    It.IsAny<CommandDefinition>()), 
+                Times.Once,
+                "O método Execute deveria ter sido chamado uma vez para atualizar a preferência");
+        }
+        
         [Fact]
         public async Task DeletePreferenciaAsync_ShouldDeletePreference()
         {
             // Arrange
             SetupMockExecute();
 
-            // Act & Assert
+            // Act  
             await _service.DeletePreferenciaAsync(1);
-            // Success is indicated by no exception being thrown
+
+            // Assert
+            ConnectionMock.Verify(x => x.ExecuteAsync(
+                    It.IsAny<CommandDefinition>()), 
+                Times.Once,
+                "O método Execute deveria ter sido chamado uma vez para deletar a preferência");
         }
+
 
         [Fact]
         public async Task DeletePreferenciaAsync_WhenPreferenceDoesNotExist_ShouldThrowException()

@@ -17,7 +17,7 @@ namespace WeatherAlertAPI.Services
         {
             try
             {
-                _logger.LogInformation($"Executando stored procedure: {procedureName}");
+                _logger.LogInformation("Executando stored procedure: {ProcedureName}", procedureName);
 
                 using var conn = _db.CreateConnection();
                 var result = await conn.QueryAsync<T>(
@@ -26,12 +26,11 @@ namespace WeatherAlertAPI.Services
                     commandType: System.Data.CommandType.StoredProcedure
                 );
                 
-                _logger.LogInformation($"Stored procedure {procedureName} executada com sucesso");
+                _logger.LogInformation("Stored procedure {ProcedureName} executada com sucesso", procedureName);
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Erro ao executar stored procedure {procedureName}");
                 throw;
             }
         }
@@ -40,7 +39,7 @@ namespace WeatherAlertAPI.Services
         {
             try
             {
-                _logger.LogInformation($"Executando stored procedure: {procedureName}");
+                _logger.LogInformation("Executando stored procedure: {ProcedureName}", procedureName);
 
                 using var conn = _db.CreateConnection();
                 await conn.ExecuteAsync(
@@ -49,11 +48,10 @@ namespace WeatherAlertAPI.Services
                     commandType: System.Data.CommandType.StoredProcedure
                 );
                 
-                _logger.LogInformation($"Stored procedure {procedureName} executada com sucesso");
+                _logger.LogInformation("Stored procedure {ProcedureName} executada com sucesso", procedureName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Erro ao executar stored procedure {procedureName}");
                 throw;
             }
         }
