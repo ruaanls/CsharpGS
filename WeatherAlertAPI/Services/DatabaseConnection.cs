@@ -20,18 +20,11 @@ namespace WeatherAlertAPI.Services
 
         public virtual IDbConnection CreateConnection()
         {
-            try
-            {
-                _logger.LogInformation("Criando conexão com o banco de dados");
-                var connection = new OracleConnection(_connectionString);
-                connection.Open();
-                _logger.LogInformation("Conexão estabelecida com sucesso");
-                return connection;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            _logger.LogInformation("Criando conexão com o banco de dados");
+            var connection = new OracleConnection(_connectionString);
+            connection.Open();
+            _logger.LogInformation("Conexão estabelecida com sucesso");
+            return connection;
         }
     }
 }

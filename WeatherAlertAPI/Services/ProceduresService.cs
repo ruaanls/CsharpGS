@@ -15,45 +15,31 @@ namespace WeatherAlertAPI.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }        public async Task<IEnumerable<T>> ExecuteStoredProcWithResultAsync<T>(string procedureName, object? parameters = null)
         {
-            try
-            {
-                _logger.LogInformation("Executando stored procedure: {ProcedureName}", procedureName);
+            _logger.LogInformation("Executando stored procedure: {ProcedureName}", procedureName);
 
-                using var conn = _db.CreateConnection();
-                var result = await conn.QueryAsync<T>(
-                    procedureName,
-                    parameters,
-                    commandType: System.Data.CommandType.StoredProcedure
-                );
-                
-                _logger.LogInformation("Stored procedure {ProcedureName} executada com sucesso", procedureName);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            using var conn = _db.CreateConnection();
+            var result = await conn.QueryAsync<T>(
+                procedureName,
+                parameters,
+                commandType: System.Data.CommandType.StoredProcedure
+            );
+            
+            _logger.LogInformation("Stored procedure {ProcedureName} executada com sucesso", procedureName);
+            return result;
         }
 
         public async Task ExecuteStoredProcAsync(string procedureName, object? parameters = null)
         {
-            try
-            {
-                _logger.LogInformation("Executando stored procedure: {ProcedureName}", procedureName);
+            _logger.LogInformation("Executando stored procedure: {ProcedureName}", procedureName);
 
-                using var conn = _db.CreateConnection();
-                await conn.ExecuteAsync(
-                    procedureName,
-                    parameters,
-                    commandType: System.Data.CommandType.StoredProcedure
-                );
-                
-                _logger.LogInformation("Stored procedure {ProcedureName} executada com sucesso", procedureName);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            using var conn = _db.CreateConnection();
+            await conn.ExecuteAsync(
+                procedureName,
+                parameters,
+                commandType: System.Data.CommandType.StoredProcedure
+            );
+            
+            _logger.LogInformation("Stored procedure {ProcedureName} executada com sucesso", procedureName);
         }
     }
 }
