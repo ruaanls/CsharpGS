@@ -71,11 +71,23 @@ namespace WeatherAlertAPI.Tests
             Assert.Equal(expectedAlerta.IdAlerta, result.IdAlerta);
             Assert.Equal(expectedAlerta.Cidade, result.Cidade);
         }
+        
+        
 
         [Fact]
-        public async Task UpdateAlertaStatusAsync_ShouldUpdateStatus()
+        public async Task UpdatePreferenciaAsync_ShouldUpdatePreference()
         {
             // Arrange
+            var preferencia = new PreferenciasNotificacao
+            {
+                IdPreferencia = 1,
+                Cidade = "São Paulo",
+                Estado = "SP",
+                TemperaturaMin = 15,
+                TemperaturaMax = 30,
+                Ativo = true
+            };
+
             SetupMockExecute();
 
             // Act
@@ -85,7 +97,7 @@ namespace WeatherAlertAPI.Tests
             ConnectionMock.Verify(x => x.ExecuteAsync(
                     It.IsAny<CommandDefinition>()), 
                 Times.Once,
-                "O método Execute deveria ter sido chamado uma vez");
+                "O método Execute deveria ter sido chamado uma vez para atualizar a preferência");
         }
 
         [Fact]

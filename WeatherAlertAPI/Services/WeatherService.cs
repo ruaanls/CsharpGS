@@ -13,19 +13,7 @@ namespace WeatherAlertAPI.Services
         private readonly WeatherApiSettings _settings;
         private readonly IAlertaService _alertaService;
         private readonly IPreferenciasService _preferenciasService;
-        private readonly ILogger<WeatherService> _logger;        public WeatherService(
-            IHttpClientFactory httpClientFactory,
-            IOptions<WeatherApiSettings> settings,
-            IAlertaService alertaService,
-            IPreferenciasService preferenciasService,
-            ILogger<WeatherService> logger)
-        {
-            _httpClient = httpClientFactory.CreateClient();
-            _settings = settings.Value;
-            _alertaService = alertaService;
-            _preferenciasService = preferenciasService;
-            _logger = logger;
-        }
+        
 
         public async Task<(decimal temperatura, string cidade, string estado)> GetCurrentTemperatureAsync(string cidade, string estado)
         {
